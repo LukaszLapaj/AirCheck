@@ -93,8 +93,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //noinspection MissingPermission
-                Log.d("Response: ", "> Przycisk nacisniety" );
-                Log.d("Response: ", "> start updateu" );
+                Log.d("Response: ", "> Button Pressed" );
+                locationManager.requestLocationUpdates("gps", 60000, 10, listener);
+                Log.d("Response: ", "> GPS Service Running" );
             }
         });
     }
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader reader = null;
 
             try {
+                Log.d("Response: ", "> Establishing Connection" );
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
@@ -153,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject obj = new JSONObject(result);
 
                 // Get info
+                Log.d("Response: ", "> Parsing data" );
                 Double pm1 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm1"));
                 Double pm10 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm10"));
                 Double pm25 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm25"));
@@ -161,12 +164,14 @@ public class MainActivity extends AppCompatActivity {
                 Double temperature = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("temperature"));
 
                 // Calculation
+                Log.d("Response: ", "> Rounding" );
                 pm1 = Math.round(pm1 * 100.0) / 100.0;
                 pm10 = Math.round(pm10 * 100.0) / 100.0;
                 pm25 = Math.round(pm25 * 100.0) / 100.0;
                 pressure = (double)(Math.round(pressure / 100));
 
-                // List text
+                // Text update
+                Log.d("Response: ", "> Text update" );
                 t.setText("PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " + "Pressure: " + pressure + "\n " + "Humidity: " + humidity + "%" + "\n " + "Temperature: " + temperature + "°C" + "\n ");
             }
             catch (Exception e) {e.printStackTrace();
