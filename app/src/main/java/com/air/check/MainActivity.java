@@ -6,8 +6,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,10 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.util.Log;
-
+import android.os.*;
 import org.json.*;
-
-import android.os.AsyncTask;
 import java.net.*;
 import java.io.*;
 
@@ -84,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void configure_button(){
-        // first check for permissions
+        // Permission check
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET}
@@ -153,25 +149,26 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String result) {
-//            String JSON_STRING="{\"currentMeasurements\":{\"pm25\":\"0\",\"pm10\":0}}";
-
             super.onPostExecute(result);
-//            t.append(result + "\n ");
             try{
                 JSONObject obj = new JSONObject(result);
+
+                // Get info
+                Double pm1 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm1"));
                 Double pm10 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm10"));
                 Double pm25 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm25"));
                 Double pressure = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pressure"));
                 Double humidity = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("humidity"));
                 Double temperature = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("temperature"));
-                temperature = Math.round(temperature * 10.0) / 10.0;
+
+                // Calculation
+                pm1 = Math.round(pm1 * 100.0) / 100.0;
                 pm10 = Math.round(pm10 * 100.0) / 100.0;
                 pm25 = Math.round(pm25 * 100.0) / 100.0;
-                Long press = Math.round(pressure / 100);
+                pressure = (double)(Math.round(pressure / 100));
 
-
-
-                t.setText("PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " + "Pressure: " + press + "\n " + "Humidity: " + humidity + "%" + "\n " + "Temperature: " + temperature + "°C" + "\n ");
+                // List text
+                t.setText("PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " + "Pressure: " + pressure + "\n " + "Humidity: " + humidity + "%" + "\n " + "Temperature: " + temperature + "°C" + "\n ");
             }
             catch (Exception e) {e.printStackTrace();
             }
