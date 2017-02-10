@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //noinspection MissingPermission
                 Log.d("Response: ", "> Przycisk nacisniety" );
-                locationManager.requestLocationUpdates("gps", 5000, 0, listener);
                 Log.d("Response: ", "> start updateu" );
             }
         });
