@@ -18,9 +18,7 @@ import org.json.*;
 import java.net.*;
 import java.io.*;
 
-
 public class MainActivity extends AppCompatActivity {
-
     private Button b;
     private TextView t;
     private LocationManager locationManager;
@@ -29,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         t = (TextView) findViewById(R.id.textView);
@@ -37,32 +34,24 @@ public class MainActivity extends AppCompatActivity {
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 new JsonTask().execute("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + location.getLatitude() + "&longitude=" + location.getLongitude() + "&apikey=0d23d883ef6a4689b938fa0dbf21e8f3");
-                //t.append( + "\n ");
             }
 
             @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
+            public void onStatusChanged(String s, int i, Bundle bundle) {}
 
             @Override
-            public void onProviderEnabled(String s) {
-
-            }
+            public void onProviderEnabled(String s) {}
 
             @Override
             public void onProviderDisabled(String s) {
-
                 Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(i);
             }
         };
-
         configure_button();
     }
 
@@ -80,10 +69,8 @@ public class MainActivity extends AppCompatActivity {
     void configure_button(){
         // Permission check
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET}
-                        ,10);
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET}, 10);
             return;
         }
         // this code won't execute IF permissions are not allowed, because in the line above there is return statement.
@@ -99,18 +86,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class JsonTask extends AsyncTask<String, String, String> {
-
         protected String doInBackground(String... params) {
-
             HttpURLConnection connection = null;
             BufferedReader reader = null;
-
             try {
                 Log.d("Response: ", "> Establishing Connection" );
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
-
 
                 InputStream stream = connection.getInputStream();
 
@@ -122,12 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line+"\n");
                     Log.d("Response: ", "> " + line);
-
                 }
-
                 return buffer.toString();
-
-
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
