@@ -14,20 +14,38 @@ import android.widget.TextView;
 import android.util.Log;
 import android.location.*;
 import android.os.*;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
 import org.json.*;
 import java.net.*;
 import java.io.*;
 
-public class MainActivity extends AppCompatActivity {
+
+
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private Button b;
     private TextView t;
     private LocationManager locationManager;
     private LocationListener listener;
 
+    GoogleApiClient mGoogleApiClient;
+    Location mLastLocation;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        buildGoogleApiClient();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        } else
+            Toast.makeText(this, "Not connected...", Toast.LENGTH_SHORT).show();
+
 
         t = (TextView) findViewById(R.id.textView);
         b = (Button) findViewById(R.id.button);
@@ -149,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
                 pm1 = Math.round(pm1 * 100.0) / 100.0;
                 pm10 = Math.round(pm10 * 100.0) / 100.0;
                 pm25 = Math.round(pm25 * 100.0) / 100.0;
-                pressure = (double)(Math.round(pressure / 100));
+                pressure = 1.0;
+                // pressure = (double)(Math.round(pressure / 100));
 
                 // Text update
                 Log.d("Response: ", "> Text update" );
@@ -158,5 +177,41 @@ public class MainActivity extends AppCompatActivity {
             catch (Exception e) {e.printStackTrace();
             }
         }
+    }
+
+
+    @Override
+    public void onConnectionFailed(ConnectionResult arg0) {
+        Toast.makeText(this, "Failed to connect...", Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onConnected(Bundle arg0) {
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+        if (mLastLocation != null) {
+            Log.d("Response: ", "> GoogleAPI" );
+            new JsonTask().execute("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + mLastLocation.getLatitude() + "&longitude=" + mLastLocation.getLongitude() + "&apikey=0d23d883ef6a4689b938fa0dbf21e8f3");
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int arg0) {
+        Toast.makeText(this, "Connection suspended...", Toast.LENGTH_SHORT).show();
+
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 }
