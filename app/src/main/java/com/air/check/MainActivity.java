@@ -1,6 +1,7 @@
 package com.air.check;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
@@ -10,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.*;
 import android.widget.TextView;
 import android.util.Log;
 import android.location.*;
@@ -18,16 +20,49 @@ import org.json.*;
 import java.net.*;
 import java.io.*;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+
+import android.location.Location;
+import android.os.Bundle;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private Button b;
     private TextView t;
     private LocationManager locationManager;
     private LocationListener listener;
 
+    GoogleApiClient mGoogleApiClient;
+    Location mLastLocation;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Create an instance of GoogleAPIClient.
+        buildGoogleApiClient();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
 
         t = (TextView) findViewById(R.id.textView);
         b = (Button) findViewById(R.id.button);
@@ -55,6 +90,22 @@ public class MainActivity extends AppCompatActivity {
         configure_button();
     }
 
+    private void getMyLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            new JsonTask().execute("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + mLastLocation.getLatitude() + "&longitude=" + mLastLocation.getLongitude() + "&apikey=0d23d883ef6a4689b938fa0dbf21e8f3");
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
@@ -64,6 +115,26 @@ public class MainActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     void configure_button(){
@@ -83,6 +154,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //noinspection MissingPermission
                 Log.d("Response: ", "> Button Pressed" );
+                if (mGoogleApiClient != null) {
+                    if (mGoogleApiClient.isConnected()) {
+                        getMyLocation();
+                    }
+                }
                 locationManager.requestLocationUpdates("gps", 60000, 10, listener);
                 Log.d("Response: ", "> GPS Service Running" );
             }
