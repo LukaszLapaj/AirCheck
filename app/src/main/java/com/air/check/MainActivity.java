@@ -97,18 +97,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     void buttonListener(){
-        runServices(1440000,100);
+        runServices(60*60,100);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("Response: ", "> Button Pressed" );
-                // checkPermission();
-                runServices(60000,10);
+                runServices(60,10);
             }
         });
     }
 
     void runServices(long time, float distance){
+        // Time convert from milliseconds to seconds
+        time *= 1000;
         Log.d("Response: ", "> Last Localisation Check" );
         buildGoogleApiClient();
         if (mGoogleApiClient != null)
