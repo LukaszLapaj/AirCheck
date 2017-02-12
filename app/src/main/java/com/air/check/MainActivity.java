@@ -53,9 +53,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         t = (TextView) findViewById(R.id.textView);
         b = (Button) findViewById(R.id.button);
 
-        checkPermission();
-        buttonListener();
-
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         listener = new LocationListener() {
@@ -76,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 startActivity(i);
             }
         };
+
+        // checkPermission();
+        buttonListener();
 
         /* buildGoogleApiClient();
         if (mGoogleApiClient != null)
