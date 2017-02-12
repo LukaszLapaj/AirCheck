@@ -77,11 +77,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         };
 
-        buildGoogleApiClient();
+        /* buildGoogleApiClient();
         if (mGoogleApiClient != null)
             mGoogleApiClient.connect();
         Log.d("Response: ", "> Initial GPS Check" );
-        locationManager.requestLocationUpdates("gps", 1440000, 100, listener);
+        locationManager.requestLocationUpdates("gps", 1440000, 100, listener); */
     }
 
     void checkPermission(){
@@ -110,7 +110,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onClick(View view) {
                 Log.d("Response: ", "> Button Pressed" );
                 checkPermission();
-                mGoogleApiClient.connect();
+                buildGoogleApiClient();
+                if (mGoogleApiClient != null)
+                    mGoogleApiClient.connect();
                 locationManager.requestLocationUpdates("gps", 60000, 10, listener);
                 Log.d("Response: ", "> GPS Service Running" );
             }
