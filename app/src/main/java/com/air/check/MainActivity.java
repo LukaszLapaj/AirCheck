@@ -3,6 +3,13 @@ package com.air.check;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,23 +19,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.util.Log;
-import android.location.*;
-import android.os.*;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-import org.json.*;
-import java.net.*;
-import java.io.*;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private Button b;
     private TextView t;
+
     private LocationManager locationManager;
     private LocationListener listener;
 
@@ -40,22 +50,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buildGoogleApiClient();
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        } else
-            Toast.makeText(this, "Not connected...", Toast.LENGTH_SHORT).show();
-
-
         t = (TextView) findViewById(R.id.textView);
         b = (Button) findViewById(R.id.button);
+
+        checkPermission();
+        buttonListener();
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                new JsonTask().execute("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + location.getLatitude() + "&longitude=" + location.getLongitude() + "&apikey=0d23d883ef6a4689b938fa0dbf21e8f3");
+                printResult(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
             }
 
             @Override
@@ -70,50 +76,56 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 startActivity(i);
             }
         };
-        configure_button();
+
+        buildGoogleApiClient();
+        if (mGoogleApiClient != null)
+            mGoogleApiClient.connect();
+        Log.d("Response: ", "> Initial GPS Check" );
+        locationManager.requestLocationUpdates("gps", 1440000, 100, listener);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case 10:
-                configure_button();
-                break;
-            default:
-                break;
-        }
-    }
-
-    void configure_button(){
+    void checkPermission(){
         // Permission check
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
             return;
         }
-        // this code won't execute IF permissions are not allowed, because in the line above there is return statement.
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == 10) {
+            buttonListener();
+        }
+    }
+
+    void buttonListener(){
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //noinspection MissingPermission
                 Log.d("Response: ", "> Button Pressed" );
+                checkPermission();
+                mGoogleApiClient.connect();
                 locationManager.requestLocationUpdates("gps", 60000, 10, listener);
                 Log.d("Response: ", "> GPS Service Running" );
             }
         });
     }
 
-    private class JsonTask extends AsyncTask<String, String, String> {
-        protected String doInBackground(String... params) {
-            HttpURLConnection connection = null;
+    String JsonTask(String params) {
+        // Dirty hack
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        HttpURLConnection connection = null;
             BufferedReader reader = null;
             try {
                 Log.d("Response: ", "> Establishing Connection" );
-                URL url = new URL(params[0]);
+                URL url = new URL(params);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
@@ -146,65 +158,35 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
             return null;
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            try{
-                JSONObject obj = new JSONObject(result);
-
-                // Get info
-                Log.d("Response: ", "> Parsing data" );
-                Double pm1 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm1"));
-                Double pm10 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm10"));
-                Double pm25 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm25"));
-                Double pressure = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pressure"));
-                Double humidity = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("humidity"));
-                Double temperature = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("temperature"));
-
-                // Calculation
-                Log.d("Response: ", "> Rounding" );
-                pm1 = Math.round(pm1 * 100.0) / 100.0;
-                pm10 = Math.round(pm10 * 100.0) / 100.0;
-                pm25 = Math.round(pm25 * 100.0) / 100.0;
-                pressure = 1.0;
-                // pressure = (double)(Math.round(pressure / 100));
-
-                // Text update
-                Log.d("Response: ", "> Text update" );
-                t.setText("PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " + "Pressure: " + pressure + "\n " + "Humidity: " + humidity + "%" + "\n " + "Temperature: " + temperature + "°C" + "\n ");
-            }
-            catch (Exception e) {e.printStackTrace();
-            }
-        }
     }
 
+    void printResult(String Latitude, String Longitude) {
+        try{
+            String result = JsonTask("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + Latitude + "&longitude=" + Longitude + "&apikey=0d23d883ef6a4689b938fa0dbf21e8f3");
+            JSONObject obj = new JSONObject(result);
 
-    @Override
-    public void onConnectionFailed(ConnectionResult arg0) {
-        Toast.makeText(this, "Failed to connect...", Toast.LENGTH_SHORT).show();
+            // Get info
+            Log.d("Response: ", "> Parsing data" );
+            Double pm1 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm1"));
+            Double pm10 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm10"));
+            Double pm25 = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pm25"));
+            // Double pressure = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("pressure"));
+            // Double humidity = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("humidity"));
+            // Double temperature = Double.valueOf(obj.getJSONObject("currentMeasurements").getString("temperature"));
 
-    }
+            // Calculation
+            Log.d("Response: ", "> Rounding" );
+            pm1 = Math.round(pm1 * 100.0) / 100.0;
+            pm10 = Math.round(pm10 * 100.0) / 100.0;
+            pm25 = Math.round(pm25 * 100.0) / 100.0;
+            // pressure = (double)(Math.round(pressure / 100));
 
-    @Override
-    public void onConnected(Bundle arg0) {
-
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+            // Text update
+            Log.d("Response: ", "> Text update" );
+            t.setText(" PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " /* + "Pressure: " + pressure + "\n " + "Humidity: " + humidity + "%" + "\n " + "Temperature: " + temperature + "°C" + "\n "*/);
         }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-        if (mLastLocation != null) {
-            Log.d("Response: ", "> GoogleAPI" );
-            new JsonTask().execute("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + mLastLocation.getLatitude() + "&longitude=" + mLastLocation.getLongitude() + "&apikey=0d23d883ef6a4689b938fa0dbf21e8f3");
+        catch (Exception e) {e.printStackTrace();
         }
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int arg0) {
-        Toast.makeText(this, "Connection suspended...", Toast.LENGTH_SHORT).show();
-
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -213,5 +195,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+        }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult arg0) {}
+
+    @Override
+    public void onConnected(Bundle arg0) {
+        checkPermission();
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            Log.d("Response: ", "> GoogleAPI" );
+            printResult(String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()));
+        }
     }
+
+    @Override
+    public void onConnectionSuspended(int arg0) {}
 }
