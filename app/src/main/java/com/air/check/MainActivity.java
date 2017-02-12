@@ -164,7 +164,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     void printResult(String Latitude, String Longitude) {
         try{
-            String result = JsonTask("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + Latitude + "&longitude=" + Longitude + "&apikey=0d23d883ef6a4689b938fa0dbf21e8f3");
+            //My apikey
+            //Airly apikey
+            String result = JsonTask("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + Latitude + "&longitude=" + Longitude + "&apikey=" + apikey);
             JSONObject obj = new JSONObject(result);
 
             // Get info
