@@ -74,14 +74,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         };
 
-        // checkPermission();
-        buttonListener();
-
-        /* buildGoogleApiClient();
-        if (mGoogleApiClient != null)
-            mGoogleApiClient.connect();
-        Log.d("Response: ", "> Initial GPS Check" );
-        locationManager.requestLocationUpdates("gps", 1440000, 100, listener); */
+        checkPermission();
     }
 
     void checkPermission(){
@@ -94,29 +87,35 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
             return;
         }
-
+        buttonListener();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == 10) {
-            buttonListener();
-        }
+        if(requestCode == 10)
+            checkPermission();
     }
 
     void buttonListener(){
+        runServices(1440000,100);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("Response: ", "> Button Pressed" );
-                checkPermission();
-                buildGoogleApiClient();
-                if (mGoogleApiClient != null)
-                    mGoogleApiClient.connect();
-                locationManager.requestLocationUpdates("gps", 60000, 10, listener);
-                Log.d("Response: ", "> GPS Service Running" );
+                // checkPermission();
+                runServices(60000,10);
             }
         });
+    }
+
+    void runServices(long time, float distance){
+        Log.d("Response: ", "> Last Localisation Check" );
+        buildGoogleApiClient();
+        if (mGoogleApiClient != null)
+            mGoogleApiClient.connect();
+        Log.d("Response: ", "> GPS Check" );
+        //noinspection ResourceType
+        locationManager.requestLocationUpdates("gps", time, distance, listener);
     }
 
     String JsonTask(String params) {
@@ -204,10 +203,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(Bundle arg0) {
-        checkPermission();
+        //noinspection ResourceType
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            Log.d("Response: ", "> GoogleAPI" );
+            Log.d("Response: ", "> Getting data from last location" );
             printResult(String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()));
         }
     }
