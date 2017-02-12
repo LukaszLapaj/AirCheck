@@ -24,7 +24,10 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +36,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
@@ -58,7 +63,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                printResult(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                try {
+                    downloadParsePrintTable(Double.valueOf(location.getLatitude()), Double.valueOf(location.getLongitude()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                // printResult(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
             }
 
             @Override
@@ -118,6 +128,79 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         //noinspection ResourceType
         locationManager.requestLocationUpdates("gps", time, distance, listener);
     }
+
+
+    void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException{
+        // My apikey
+        // String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
+        // Airly apikey
+        // String apikey = "fae55480ef384880871f8b40e77bbef9";
+
+        String result = JsonTask("https://airapi.airly.eu/v1/sensors/current?southwestLat=50.018630455297846&southwestLong=19.605224822998025&northeastLat=50.19786185757222&northeastLong=20.040214752197244&apikey=fae55480ef384880871f8b40e77bbef9");
+        // t.setText(result);
+        int id = 0;
+        int index = 0;
+        double distanceTo = Double.MAX_VALUE;
+
+        JSONArray jsonarray = new JSONArray(result);
+        for (int i = 0; i < jsonarray.length(); i++) {
+            JSONObject jsonobject = jsonarray.getJSONObject(i);
+            JSONObject location = jsonobject.getJSONObject("location");
+            String latitude = location.getString("latitude");
+            String longitude = location.getString("longitude");
+            String sensorId = jsonobject.getString("id");
+            // String ln = name.getString("longitude");
+            //String url = jsonobject.getString("longitude");
+            // t.append(latitude + " " + longitude + "\n");
+            // t.append(distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude), 0, 0) + "\n");
+            if(distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude), 0, 0) <= distanceTo){
+                id = Integer.parseInt(sensorId);
+                index =  i;
+                distanceTo = distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude), 0, 0);
+                // t.append(latitude + " " + longitude + "\n" /* + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude)) + "\n" */);
+            }
+        }
+        JSONObject jsonobject = jsonarray.getJSONObject(index);
+        JSONObject location = jsonobject.getJSONObject("location");
+        String latitude = location.getString("latitude");
+        String longitude = location.getString("longitude");
+        String vendor = jsonobject.getString("vendor");
+        t.append(latitude + " " + longitude + "\n" + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude), 0, 0) + "\n");
+        printResult(latitude, longitude);
+
+        /*
+        JSONObject jsonResponse = new JSONObject(result);
+        JSONArray cast = jsonResponse.getJSONArray("abridged_cast");
+        for (int i=0; i<cast.length(); i++) {
+            JSONObject sensor = cast.getJSONObject(i);
+            String latitude = sensor.getString("latitude");
+            String longitude = sensor.getString("longitude");
+            String sensorId = sensor.getString("id");
+            if(distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude)) <= distance){
+                id = Integer.parseInt(sensorId);
+            }
+            //allNames.add(name);
+        }*/
+        /*try {
+            //JSON is the JSON code above
+
+            JSONObject jsonResponse = new JSONObject(result);
+            JSONArray latitude = jsonResponse.getJSONArray("latitude");
+            JSONArray longitude = jsonResponse.getJSONArray("longitude");
+            String latitude = latitude.toString();
+            String longitude = longitude.toString();
+
+
+
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }*/
+        // t.setText(id);
+    }
+
+
+
 
     String JsonTask(String params) {
         // Dirty hack
@@ -189,7 +272,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             // Text update
             Log.d("Response: ", "> Text update" );
-            t.setText(" PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " /* + "Pressure: " + pressure + "\n " + "Humidity: " + humidity + "%" + "\n " + "Temperature: " + temperature + "°C" + "\n "*/);
+            t.append("\n" + "PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n ");
+            // t.setText(" PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " + "Pressure: " + pressure + "\n " + "Humidity: " + humidity + "%" + "\n " + "Temperature: " + temperature + "°C" + "\n ");
         }
         catch (Exception e) {e.printStackTrace();
         }
@@ -207,15 +291,39 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnectionFailed(ConnectionResult arg0) {}
 
     @Override
-    public void onConnected(Bundle arg0) {
+    public void onConnected(Bundle arg0){
         //noinspection ResourceType
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             Log.d("Response: ", "> Getting data from last location" );
-            printResult(String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()));
+            try {
+                downloadParsePrintTable(Double.valueOf(mLastLocation.getLatitude()), Double.valueOf(mLastLocation.getLongitude()));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            // printResult(String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()));
         }
     }
 
     @Override
     public void onConnectionSuspended(int arg0) {}
+
+    public static double distance(double lat1, double lat2, double lon1, double lon2, double el1, double el2) {
+
+        final int R = 6371; // Radius of the earth
+
+        Double latDistance = Math.toRadians(lat2 - lat1);
+        Double lonDistance = Math.toRadians(lon2 - lon1);
+        Double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+
+        double height = el1 - el2;
+
+        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+
+        return Math.sqrt(distance);
+    }
 }
