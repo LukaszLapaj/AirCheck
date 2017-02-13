@@ -162,36 +162,45 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // My apikey
         // String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
         // Airly apikey
-        // String apikey = "fae55480ef384880871f8b40e77bbef9";
-
-        String result = JsonTask("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=fae55480ef384880871f8b40e77bbef9");
+        String apikey = "fae55480ef384880871f8b40e77bbef9";
+        String result = JsonTask("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey);
         // t.setText(result);
-        // int id = 0;
-        int indexAirly = 0;
-        int idAirly = 0;
-        double distanceToAirly = Double.MAX_VALUE;
-
-        String latitude = "0";
-        String longitude = "0";
-        // String sensorId = "0";
+        int id = 0;
+        int index = 0;
+        stacja Airly = new stacja(0, 0, 0);
+        double distanceTo = Double.MAX_VALUE;
 
         JSONArray jsonarray = new JSONArray(result);
-        /*for (int i = 0; i < jsonarray.length(); i++) {
+        for (int i = 0; i < jsonarray.length(); i++) {
             JSONObject jsonobject = jsonarray.getJSONObject(i);
             JSONObject location = jsonobject.getJSONObject("location");
-            // stacja Airly = new stacja(Double.valueOf(location.getString("latitude"), 1location.getString("longitude"), 1);
-            latitude = location.getString("latitude");
-            longitude = location.getString("longitude");
-            sidAirly = jsonobject.getString("id");
-            if(distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude)) <= distanceToAirly){
-                id = Integer.parseInt(sensorId);
-                indexAirly =  i;
-                distanceToAirly = distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude));
-                // t.append(latitude + " " + longitude + "\n" /* + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude)) + "\n" );
-            }
-        }*/
+            String latitude = location.getString("latitude");
+            String longitude = location.getString("longitude");
+            int sensorId = jsonobject.getInt("id");
+            // String ln = name.getString("longitude");
+            //String url = jsonobject.getString("longitude");
+            // t.append(latitude + " " + longitude + "\n");
+            // t.append(distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude), 0, 0) + "\n");
+            if(distance(Latitude, Double.valueOf(latitude), Longitude, Double.valueOf(longitude)) <= distanceTo){
+                // id = Integer.parseInt(sensorId);
+                index =  i;
+                Airly.latitude = Double.valueOf(latitude);
+                Airly.longitude = Double.valueOf(longitude);
+                Airly.id = sensorId;
+                distanceTo = distance(Latitude, Double.valueOf(latitude), Longitude, Double.valueOf(longitude));
 
-        // String result = JsonTask("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1");
+                // t.append(latitude + " " + longitude + "\n" /* + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude)) + "\n" */);
+            }
+        }
+        JSONObject jsonobject = jsonarray.getJSONObject(index);
+        JSONObject location = jsonobject.getJSONObject("location");
+        String latitude = location.getString("latitude");
+        String longitude = location.getString("longitude");
+        String vendor = jsonobject.getString("vendor");
+        // t.append(latitude + " " + longitude + "\n" + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude) + "\n"));
+        printResult(Double.toString(Airly.latitude), Double.toString(Airly.longitude), "airly", Airly.id);
+        //printResult(latitude, longitude, "airly", 0);
+
         int indexWios = 0;
         double distanceToWios = Double.MAX_VALUE;
 
@@ -215,7 +224,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         }
 
-        if(distanceToAirly < distanceToWios) {
+        printResult(Double.toString(stacje[indexWios].latitude), Double.toString(stacje[indexWios].longitude), "WIOS", stacje[indexWios].id);
+
+        /* if(distanceToAirly < distanceToWios) {
             JSONObject jsonobject = jsonarray.getJSONObject(indexAirly);
             JSONObject location = jsonobject.getJSONObject("location");
             latitude = location.getString("latitude");
@@ -223,9 +234,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             printResult(latitude, longitude, "airly", 0);
         }else{
             printResult(Double.toString(stacje[indexWios].latitude), Double.toString(stacje[indexWios].longitude), "WIOS", stacje[indexWios].id);
-            // t.append(Double.toString(distanceToWios) + " " + Double.toString(stacje[indexWios].latitude) + " " + Double.toString(stacje[indexWios].longitude) + " WIOS " + stacje[indexWios].id);
+            // t.append(Double.toString(distanceToWios) + " " + Double.toString(stacje[indexWios].latitude) + " " + Double.toString(stacje[indexWios].longitude) + " WIOS " + stacje[indexWios].id); */
         }
-
 
         /*printResult(latitude, longitude, "airly");
         JSONObject jsonobject = jsonarray.getJSONObject(index);
@@ -234,8 +244,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         longitude = location.getString("longitude");
         String vendor = jsonobject.getString("vendor");
         printResult(latitude, longitude, "airly");
-        // t.append(latitude + " " + longitude + "\n" + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude) + "\n");*/
-    }
+        // t.append(latitude + " " + longitude + "\n" + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude) + "\n");
+    }*/
 
 
 
@@ -290,7 +300,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 // String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
                 //Airly apikey
                 String apikey = "fae55480ef384880871f8b40e77bbef9";
-                String result = JsonTask("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + Latitude + "&longitude=" + Longitude + "&apikey=" + apikey);
+                // String result = JsonTask("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + Latitude + "&longitude=" + Longitude + "&apikey=" + apikey);
+                String result = JsonTask("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + id + "&apikey=" + apikey);
                 JSONObject obj = new JSONObject(result);
 
                 // Get info
@@ -319,39 +330,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         }
         if(vendor == "WIOS") {
-            /*Gson gson = new Gson();
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(Book.class, new WiosParser());
-            Gson gson = gsonBuilder.create();
-            try(Reader reader = new InputStreamReader(Main.class.getResourceAsStream("/part1/sample.json"), "UTF-8")){
-
-                // Parse JSON to Java
-                Book book = gson.fromJson(reader, Book.class);
-                System.out.println(book);
-            }
-        }*/
             try {
                 String result = JsonTask("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1");
                 JSONObject obj = new JSONObject(result);
-
-
-                // JSONArray jsonarray = new JSONArray(result);
-                // while( != id)
                 for (int i = 0; i < 6; i++) {
-                    // JSONObject jsonobject = jsonarray.getJSONObject(i);
                     JSONObject dane = obj.getJSONObject("dane");
                     JSONArray stacje = dane.getJSONArray("actual");
                     JSONObject stacja = stacje.getJSONObject(i);
-                    //JSONArray jsonarray = new JSONArray(location);
-                    //JSONObject jsonobject = jsonarray.getJSONObject(i);
                     int station_id  = stacja.getInt("station_id");
                     // t.append(station_id + " " + id + "\n");
                     if (station_id == id) {
                         JSONArray details = stacja.getJSONArray("details");
-                        // JSONObject details = stacja.getJSONObject("details");
                         JSONObject test = details.getJSONObject(0);
                         int pm10 = test.getInt("o_value");
-                        t.append(station_id + " " + pm10);
+                        t.append("\n" + "Numer stacji WIOŚ: " + station_id + "\n" + "PM10: " + pm10);
                         // String longitude = location.getString("longitude");
                         // String latitude = location.getString("longitude");
                         // sensorId = jsonobject.getString("id");
