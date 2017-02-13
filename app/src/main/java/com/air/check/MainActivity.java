@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         JSONObject location = jsonobject.getJSONObject("location");
         String latitude = location.getString("latitude");
         String longitude = location.getString("longitude");
-        String vendor = jsonobject.getString("vendor");
+        // String vendor = jsonobject.getString("vendor");
         // t.append(latitude + " " + longitude + "\n" + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude) + "\n"));
         printResult(Double.toString(Airly.latitude), Double.toString(Airly.longitude), "airly", Airly.id);
         //printResult(latitude, longitude, "airly", 0);
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         stacja stacje[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
 
         for (int i = 0; i < 6; i++) {
-            if(distance(Double.valueOf(Latitude), stacje[i].latitude, Double.valueOf(Longitude), stacje[i].longitude) <= distanceToWios){
+            if(distance(Double.valueOf(Latitude), stacje[i].latitude, Double.valueOf(Longitude), stacje[i].longitude) < distanceToWios){
                 // id = Integer.parseInt(sensorId);
                 indexWios =  i;
                 distanceToWios = distance(Double.valueOf(Latitude), stacje[i].latitude, Double.valueOf(Longitude), stacje[i].longitude);
@@ -235,20 +235,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }else{
             printResult(Double.toString(stacje[indexWios].latitude), Double.toString(stacje[indexWios].longitude), "WIOS", stacje[indexWios].id);
             // t.append(Double.toString(distanceToWios) + " " + Double.toString(stacje[indexWios].latitude) + " " + Double.toString(stacje[indexWios].longitude) + " WIOS " + stacje[indexWios].id); */
-        }
-
-        /*printResult(latitude, longitude, "airly");
-        JSONObject jsonobject = jsonarray.getJSONObject(index);
-        JSONObject location = jsonobject.getJSONObject("location");
-        latitude = location.getString("latitude");
-        longitude = location.getString("longitude");
-        String vendor = jsonobject.getString("vendor");
-        printResult(latitude, longitude, "airly");
-        // t.append(latitude + " " + longitude + "\n" + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude) + "\n");
-    }*/
-
-
-
+    }
 
     String JsonTask(String params) {
         // Dirty hack
@@ -338,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     JSONArray stacje = dane.getJSONArray("actual");
                     JSONObject stacja = stacje.getJSONObject(i);
                     int station_id  = stacja.getInt("station_id");
-                    // t.append(station_id + " " + id + "\n");
                     if (station_id == id) {
                         JSONArray details = stacja.getJSONArray("details");
                         JSONObject test = details.getJSONObject(0);
