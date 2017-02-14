@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onProviderDisabled(String s) {
                 Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(i);
-                runServices(60,10);
+                // runServices(60,10);
             }
         };
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onClick(View view) {
                 Log.d("Response: ", "> Button Pressed" );
-                // runServices(60,10);
+                runServices(60,10);
             }
         });
     }
