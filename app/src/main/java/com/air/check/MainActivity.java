@@ -37,6 +37,8 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -324,6 +326,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         JSONObject test = details.getJSONObject(0);
                         int pm10 = test.getInt("o_value");
                         t.append("\n" + "Numer stacji WIOŚ: " + station_id + "\n" + "PM10: " + pm10);
+                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                        t.append("\n" + "\n" + timestamp);
                     }
                 }
             } catch (Exception e) {
