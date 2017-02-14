@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onLocationChanged(Location location) {
                 try {
+                    t.setText("Update...");
                     downloadParsePrintTable(location.getLatitude(), location.getLongitude());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     class stacjaWIOS extends stacja{
         double distanceTo;
+        int cityId;
     }
 
     class stacjaAirly extends stacja{
@@ -195,8 +197,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Double latitude = location.getDouble("latitude");
         Double longitude = location.getDouble("longitude");
         // String vendor = jsonobject.getString("vendor");
-        // t.append(latitude + " " + longitude + "\n" + distance(Double.valueOf(Latitude), Double.valueOf(latitude), Double.valueOf(Longitude), Double.valueOf(longitude) + "\n"));
-        printResult(Double.toString(Airly.latitude), Double.toString(Airly.longitude), "airly", Airly.id);
+        printResult(Double.toString(Airly.latitude), Double.toString(Airly.longitude), "Airly", Airly.id);
 
         int indexWios = 0;
         double distanceToWios = Double.MAX_VALUE;
@@ -277,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     void printResult(String Latitude, String Longitude, String vendor, int id) {
-        if(vendor == "airly"){
+        if(vendor == "Airly"){
             try{
                 //My apikey
                 // String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
