@@ -164,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException {
         // My apikey
         // String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
+        // My apikey
+        // String apikey = "5f5c4d0463fe44829f463e4bf819bc00​";
         // Airly apikey
         String apikey = "fae55480ef384880871f8b40e77bbef9";
         String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey).get();
