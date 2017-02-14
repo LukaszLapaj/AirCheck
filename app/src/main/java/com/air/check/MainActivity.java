@@ -39,6 +39,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -71,6 +72,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 try {
                     downloadParsePrintTable(Double.valueOf(location.getLatitude()), Double.valueOf(location.getLongitude()));
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 // printResult(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
@@ -158,12 +163,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
 
-    void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException{
+    void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException {
         // My apikey
         // String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
         // Airly apikey
         String apikey = "fae55480ef384880871f8b40e77bbef9";
-        String result = JsonTask("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey);
+        // String result = JsonTask("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey);
+        String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey).get();
         // t.setText(result);
         int id = 0;
         int index = 0;
@@ -237,7 +243,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             // t.append(Double.toString(distanceToWios) + " " + Double.toString(stacje[indexWios].latitude) + " " + Double.toString(stacje[indexWios].longitude) + " WIOS " + stacje[indexWios].id); */
     }
 
-    String JsonTask(String params) {
+
+    String JsonTasker(String params) {
         // Dirty hack
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -280,6 +287,64 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return null;
     }
 
+
+    private class JsonTask extends AsyncTask<String, String, String> {
+
+        protected String doInBackground(String... params) {
+
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
+
+            try {
+                URL url = new URL(params[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+
+                InputStream stream = connection.getInputStream();
+
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line+"\n");
+                    Log.d("Response: ", "> " + line);
+
+                }
+
+                return buffer.toString();
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+//            String JSON_STRING="{\"currentMeasurements\":{\"pm25\":\"0\",\"pm10\":0}}";
+
+            super.onPostExecute(result);
+//            t.append(result + "\n ");
+
+          }
+    }
+
     void printResult(String Latitude, String Longitude, String vendor, int id) {
         if(vendor == "airly"){
             try{
@@ -288,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 //Airly apikey
                 String apikey = "fae55480ef384880871f8b40e77bbef9";
                 // String result = JsonTask("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + Latitude + "&longitude=" + Longitude + "&apikey=" + apikey);
-                String result = JsonTask("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + id + "&apikey=" + apikey);
+                String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + id + "&apikey=" + apikey).get();
                 JSONObject obj = new JSONObject(result);
 
                 // Get info
@@ -318,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
         if(vendor == "WIOS") {
             try {
-                String result = JsonTask("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1");
+                String result = new JsonTask().execute("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1").get();
                 JSONObject obj = new JSONObject(result);
                 for (int i = 0; i < 6; i++) {
                     JSONObject dane = obj.getJSONObject("dane");
@@ -363,6 +428,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             try {
                 downloadParsePrintTable(Double.valueOf(mLastLocation.getLatitude()), Double.valueOf(mLastLocation.getLongitude()));
             } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
                 e.printStackTrace();
             }
             // printResult(String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()));
