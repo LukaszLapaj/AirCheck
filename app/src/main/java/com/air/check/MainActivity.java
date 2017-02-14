@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey).get();
         int id = 0;
         int index = 0;
-        stacja Airly = new stacja();
+        stacjaAirly Airly = new stacjaAirly();
         double distanceToAirly = Double.MAX_VALUE;
         JSONArray jsonarray = new JSONArray(result);
         for (int i = 0; i < jsonarray.length(); i++) {
@@ -248,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             BufferedReader reader = null;
 
             try {
+                Log.d("Response: ", "> Establishing Connection" );
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
