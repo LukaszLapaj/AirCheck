@@ -333,14 +333,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 for (int i = 0; i < 6; i++) {
                     JSONObject dane = obj.getJSONObject("dane");
                     JSONArray actual = dane.getJSONArray("actual");
-                    JSONArray details = stacja.getJSONArray("details");
-                    int station_id  = actual.getJSONObject(0).getInt("station_id");
                     JSONObject stacja = actual.getJSONObject(i);
-                    
+                    int station_id  = stacja.getInt("station_id");
                     if (station_id == id) {
                         JSONArray details = stacja.getJSONArray("details");
-                        JSONObject test = details.getJSONObject(0);
-                        int pm10 = test.getInt("o_value");
+                        int pm10 = details.getJSONObject(0).getInt("o_value");
                         t.append("\n" + "Numer stacji WIOŚ: " + station_id + "\n" + "PM10: " + pm10 + "\n" + "Odleglość: " + Math.round(distance * 100) /100 + "\n ");
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                         t.append("\n" + timestamp);
