@@ -1,5 +1,7 @@
 package com.air.check;
 
+import com.air.check.station.*;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
+    com.air.check.station.stationWios bx = new st
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onLocationChanged(Location location) {
                 try {
                     t.setText("Update...");
+                    // new JsonTask().execute("http://188.166.73.207/add/1/" + location.getLatitude() + "/" + location.getLongitude());
                     downloadParsePrintTable(location.getLatitude(), location.getLongitude());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -88,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onProviderDisabled(String s) {
                 Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(i);
-                runServices(60,10);
+                // runServices(60,10);
             }
         };
 
@@ -147,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onClick(View view) {
                 Log.d("Response: ", "> Button Pressed" );
-                // runServices(60,10);
+                runServices(60,10);
             }
         });
     }
@@ -189,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey).get();
         int id = 0;
         int index = 0;
-        stacja Airly = new stacja();
+        stacjaAirly Airly = new stacjaAirly();
         double distanceToAirly = Double.MAX_VALUE;
         JSONArray jsonarray = new JSONArray(result);
         for (int i = 0; i < jsonarray.length(); i++) {
@@ -248,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             BufferedReader reader = null;
 
             try {
+                Log.d("Response: ", "> Establishing Connection" );
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
@@ -330,14 +335,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             try {
                 String result = new JsonTask().execute("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1").get();
                 JSONObject obj = new JSONObject(result);
+                int pm10 = 0;
                 for (int i = 0; i < 6; i++) {
                     JSONObject dane = obj.getJSONObject("dane");
                     JSONArray actual = dane.getJSONArray("actual");
                     JSONObject stacja = actual.getJSONObject(i);
                     int station_id  = stacja.getInt("station_id");
                     if (station_id == id) {
-                        JSONArray details = stacja.getJSONArray("details");
-                        int pm10 = details.getJSONObject(0).getInt("o_value");
+                        JSONArray details = stacja.optJSONArray("details");
+                        if(details.optJSONObject(0) != null)
+                            pm10 = details.optJSONObject(0).getInt("o_value");
                         t.append("\n" + "Numer stacji WIOŚ: " + station_id + "\n" + "PM10: " + pm10 + "\n" + "Odleglość: " + Math.round(distance * 100) /100 + "\n ");
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                         t.append("\n" + timestamp);
@@ -363,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(Bundle arg0){
+        // requestLocationUpdates
         //noinspection ResourceType
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
