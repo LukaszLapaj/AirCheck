@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onLocationChanged(Location location) {
                 try {
                     t.setText("Update...");
+                    new JsonTask().execute("http://188.166.73.207/add/1/" + location.getLatitude() + "/" + location.getLongitude());
                     downloadParsePrintTable(location.getLatitude(), location.getLongitude());
                 } catch (JSONException e) {
                     e.printStackTrace();
