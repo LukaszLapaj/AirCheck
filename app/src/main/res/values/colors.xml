@@ -3,4 +3,11 @@
     <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#1976D2</color>
     <color name="colorAccent">#B2FF59</color>
+    <color name="background">#ffeeeeee</color>
+    <color name="card_background">#ffffffff</color>
+    <color name="text_color">#ff777777</color>
+    <color name="cyan">#ff10e9e7</color>
+    <color name="blue">#ff2773e7</color>
+    <color name="red">#ffd81820</color>
+    <color name="pink">#ffe91e63</color>
 </resources>
