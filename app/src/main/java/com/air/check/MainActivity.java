@@ -1,7 +1,5 @@
 package com.air.check;
 
-import com.air.check.station.*;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -61,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
-    com.air.check.station.stationWios bx = new st
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,17 +121,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    class stacjaWIOS extends stacja{
-        double distanceTo;
-        int cityId;
-    }
-
-    class stacjaAirly extends stacja{
-        double distanceTo;
-    }
-
     void checkPermission(){
         // Permission check
+        if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -182,15 +171,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         else
             return 0;
     }
-
-    String hadStringValue(JSONObject obj, String key) throws JSONException{
-        if(obj.has(key))
-            return obj.optString(key);
-        else
-            return "0";
-    }
-
-
     void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException {
 //        My apikey
 //        String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
@@ -349,21 +329,4 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnectionSuspended(int arg0) {}
-
-    public static double distance(double lat1, double lat2, double lon1, double lon2) {
-
-        final int R = 6371; // Radius of the earth
-
-        Double latDistance = Math.toRadians(lat2 - lat1);
-        Double lonDistance = Math.toRadians(lon2 - lon1);
-        Double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c * 1000; // convert to meters
-
-        distance = Math.pow(distance, 2);
-
-        return Math.sqrt(distance);
-    }
 }
