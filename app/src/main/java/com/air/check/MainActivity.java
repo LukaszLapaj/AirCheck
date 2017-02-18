@@ -153,6 +153,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException {
+//        Latitude =  50.05767;
+//        Longitude = 19.926189;
         StationAirly Airly = new StationAirly().FindStation(Latitude, Longitude);
         t.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Math.round(Airly.distanceTo * 100) /100 + "\n ");
         StationWios Wios = new StationWios().FindStation(Latitude, Longitude);
