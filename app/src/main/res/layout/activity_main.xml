@@ -8,22 +8,101 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/background"
     tools:context="com.air.check.MainActivity">
 
-<TextView
-    android:layout_width="match_parent"
-    android:id="@+id/textView"
-    android:layout_alignParentStart="true"
-    android:layout_above="@+id/button"
-    android:layout_height="match_parent" />
+<!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:id="@+id/textView"-->
+    <!--android:layout_alignParentStart="true"-->
+    <!--android:layout_above="@+id/button"-->
+    <!--android:layout_height="match_parent" />-->
 
-<Button
-    android:text="Run Service"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/button"
-    android:layout_alignParentBottom="true"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentEnd="true" />
+<!--<Button-->
+    <!--android:text="Run Service"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:id="@+id/button"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_alignParentStart="true"-->
+    <!--android:layout_alignParentEnd="true" />-->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/bg_card"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size"
+                android:textColor="@color/text_color"
+                android:id="@+id/textView"
+                android:fontFamily="sans-serif-light"
+                android:layout_margin="10dp"
+                android:minHeight="30dp"
+                android:minWidth="300dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/bg_card"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size"
+                android:textColor="@color/text_color"
+                android:id="@+id/textView2"
+                android:fontFamily="sans-serif-light"
+                android:layout_margin="10dp"
+                android:minHeight="30dp"
+                android:minWidth="300dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/bg_card"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size"
+                android:textColor="@color/text_color"
+                android:id="@+id/textView3"
+                android:fontFamily="sans-serif-light"
+                android:layout_margin="10dp"
+                android:minHeight="30dp"
+                android:minWidth="300dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:text="Run Service!"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/button"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
