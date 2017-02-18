@@ -53,7 +53,9 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private Button b;
-    private TextView t;
+    private TextView t1;
+    private TextView t2;
+    private TextView t3;
 
     private LocationManager locationManager;
     private LocationListener listener;
@@ -66,7 +68,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        t = (TextView) findViewById(R.id.textView);
+        t1 = (TextView) findViewById(R.id.textView);
+        t2 = (TextView) findViewById(R.id.textView2);
+        t3 = (TextView) findViewById(R.id.textView3);
         b = (Button) findViewById(R.id.button);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -75,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onLocationChanged(Location location) {
                 try {
-                    t.setText("Update...");
+                    t1.setText("Update...");
                     new JsonTask().execute("http://188.166.73.207/add/1/" + location.getLatitude() + "/" + location.getLongitude());
                     downloadParsePrintTable(location.getLatitude(), location.getLongitude());
                 } catch (JSONException e) {
@@ -156,12 +160,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 //        Latitude =  50.05767;
 //        Longitude = 19.926189;
         StationAirly Airly = new StationAirly().FindStation(Latitude, Longitude);
-        t.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Math.round(Airly.distanceTo * 100) /100 + "\n ");
+        t1.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Math.round(Airly.distanceTo * 100) / 100);
         StationWios Wios = new StationWios().FindStation(Latitude, Longitude);
-        t.append("\n" + "Numer stacji WIOŚ: " + Wios.stationId + "\n" + Wios.name + "\n" + "PM10: " + Wios.pm10 + "\n" + "PM2.5: " + Wios.pm25 + "\n" + "Odleglość: " + Math.round(Wios.distanceTo * 100) /100 + "\n ");
-        t.append("\n" + "Miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, Wios.latitude, Airly.longitude, Wios.longitude) * 100) / 100);
+        t2.setText("Numer stacji WIOŚ: " + Wios.stationId + "\n" + Wios.name + "\n" + "PM10: " + Wios.pm10 + "\n" + "PM2.5: " + Wios.pm25 + "\n" + "Odleglość: " + Math.round(Wios.distanceTo * 100) / 100);
+        t3.setText("Miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, Wios.latitude, Airly.longitude, Wios.longitude) * 100) / 100 + "\n" );
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        t.append("\n" + timestamp);
+        t3.append("" + timestamp);
     }
 
     protected synchronized void buildGoogleApiClient() {
