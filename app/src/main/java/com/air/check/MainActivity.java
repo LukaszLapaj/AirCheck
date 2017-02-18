@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey).get();
         int id = 0;
         int index = 0;
-        stacjaAirly Airly = new stacjaAirly();
+        stacja Airly = new stacja();
         double distanceToAirly = Double.MAX_VALUE;
         JSONArray jsonarray = new JSONArray(result);
         for (int i = 0; i < jsonarray.length(); i++) {
@@ -190,12 +190,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Double latitude = location.getDouble("latitude");
             Double longitude = location.getDouble("longitude");
             int sensorId = jsonobject.getInt("id");
-            if(distance(Latitude, latitude, Longitude, longitude) <= distanceToAirly){
+            if(Distance.calculate(Latitude, latitude, Longitude, longitude) <= distanceToAirly){
                 index =  i;
                 Airly.latitude = latitude;
                 Airly.longitude = longitude;
                 Airly.id = sensorId;
-                distanceToAirly = distance(Latitude, latitude, Longitude, longitude);
+                distanceToAirly = Distance.calculate(Latitude, latitude, Longitude, longitude);
             }
         }
 //        JSONObject jsonobject = jsonarray.getJSONObject(index);
@@ -217,14 +217,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         stacja stacje[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
 
         for (int i = 0; i < stacje.length; i++) {
-            if(distance(Latitude, stacje[i].latitude, Longitude, stacje[i].longitude) < distanceToWios){
+            if(Distance.calculate(Latitude, stacje[i].latitude, Longitude, stacje[i].longitude) < distanceToWios){
                 indexWios =  i;
-                distanceToWios = distance(Latitude, stacje[i].latitude, Longitude, stacje[i].longitude);
+                distanceToWios = Distance.calculate(Latitude, stacje[i].latitude, Longitude, stacje[i].longitude);
             }
         }
 
         printResult(Double.toString(stacje[indexWios].latitude), Double.toString(stacje[indexWios].longitude), "WIOS", stacje[indexWios].id, distanceToWios);
-        t.append("\n" + "Miedzy stacjami: " + Math.round(distance(Airly.latitude, stacje[indexWios].latitude, Airly.longitude, stacje[indexWios].longitude) * 100) / 100);
+        t.append("\n" + "Miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, stacje[indexWios].latitude, Airly.longitude, stacje[indexWios].longitude) * 100) / 100);
 
 //        if(distanceToAirly < distanceToWios)
 //            printResult(Double.toString(Airly.latitude), Double.toString(Airly.longitude), "airly", Airly.id);
