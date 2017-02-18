@@ -172,38 +172,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return 0;
     }
     void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException {
-//        My apikey
-//        String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
-//        My apikey
-//        String apikey = "5f5c4d0463fe44829f463e4bf819bc00​";
-//        Airly apikey
-        String apikey = "fae55480ef384880871f8b40e77bbef9";
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + apikey).get();
-        int id = 0;
-        int index = 0;
-        stacja Airly = new stacja();
-        double distanceToAirly = Double.MAX_VALUE;
-        JSONArray jsonarray = new JSONArray(result);
-        for (int i = 0; i < jsonarray.length(); i++) {
-            JSONObject jsonobject = jsonarray.getJSONObject(i);
-            JSONObject location = jsonobject.getJSONObject("location");
-            Double latitude = location.getDouble("latitude");
-            Double longitude = location.getDouble("longitude");
-            int sensorId = jsonobject.getInt("id");
-            if(Distance.calculate(Latitude, latitude, Longitude, longitude) <= distanceToAirly){
-                index =  i;
-                Airly.latitude = latitude;
-                Airly.longitude = longitude;
-                Airly.id = sensorId;
-                distanceToAirly = Distance.calculate(Latitude, latitude, Longitude, longitude);
-            }
-        }
-//        JSONObject jsonobject = jsonarray.getJSONObject(index);
-//        JSONObject location = jsonobject.getJSONObject("location");
-//        Double latitude = location.getDouble("latitude");
-//        Double longitude = location.getDouble("longitude");
-//        String vendor = jsonobject.getString("vendor");
-        printResult(Double.toString(Airly.latitude), Double.toString(Airly.longitude), "Airly", Airly.id, distanceToAirly);
+        StationAirly Airly = new StationAirly().FindStation(Latitude, Longitude);
+        t.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Airly.distanceTo + "\n ");
 
         int indexWios = 0;
         double distanceToWios = Double.MAX_VALUE;
@@ -224,52 +194,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         printResult(Double.toString(stacje[indexWios].latitude), Double.toString(stacje[indexWios].longitude), "WIOS", stacje[indexWios].id, distanceToWios);
-        t.append("\n" + "Miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, stacje[indexWios].latitude, Airly.longitude, stacje[indexWios].longitude) * 100) / 100);
-
-//        if(distanceToAirly < distanceToWios)
-//            printResult(Double.toString(Airly.latitude), Double.toString(Airly.longitude), "airly", Airly.id);
-//        else
-//            printResult(Double.toString(stacje[indexWios].latitude), Double.toString(stacje[indexWios].longitude), "WIOS", stacje[indexWios].id);
     }
 
-
     void printResult(String Latitude, String Longitude, String vendor, int id, double distance/*, stacjaAirly stacjaAirlyClosest, stacjaWios stacjaWiosClosest*/) {
-        if(vendor == "Airly"){
-            try{
-                //My apikey
-                // String apikey = "0d23d883ef6a4689b938fa0dbf21e8f3";
-                //Airly apikey
-                String apikey = "fae55480ef384880871f8b40e77bbef9";
-                // String result = JsonTask("https://airapi.airly.eu/v1/mapPoint/measurements?latitude=" + Latitude + "&longitude=" + Longitude + "&apikey=" + apikey);
-                String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + id + "&apikey=" + apikey).get();
-                JSONObject obj = new JSONObject(result).getJSONObject("currentMeasurements");
-
-                // Get info
-                Log.d("Response: ", "> Parsing data" );
-                Double pm1 = hadDoubleValue(obj, "pm1");
-                Double pm10 = hadDoubleValue(obj, "pm10");
-                Double pm25 = hadDoubleValue(obj, "pm25");
-                Double pressure = hadDoubleValue(obj, "pressure");
-                Double humidity = hadDoubleValue(obj, "humidity");
-                Double temperature = hadDoubleValue(obj, "temperature");
-
-                // Calculation
-                Log.d("Response: ", "> Rounding" );
-                pm1 = Math.round(pm1 * 100.0) / 100.0;
-                pm10 = Math.round(pm10 * 100.0) / 100.0;
-                pm25 = Math.round(pm25 * 100.0) / 100.0;
-                pressure = (double)(Math.round(pressure / 100));
-                humidity = Math.round(humidity * 100.0) / 100.0;
-                temperature = Math.round(temperature * 10.0) / 10.0;
-
-                // Text update
-                Log.d("Response: ", "> Text update" );
-                //t.append("\n" + "PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n ");
-                t.setText(" PM1: " + pm1 + "\n " + "PM2.5: " + pm25 + "\n " + "PM10: " + pm10 + "\n " + "Ciśnienie: " + pressure + "hPa" + "\n " + "Wilgotność: " + humidity + "%" + "\n " + "Temperatura: " + temperature + "°C" + "\n "+ "Odleglość: " + Math.round(distance * 100) / 100 + "\n ");
-            }
-            catch (Exception e) {e.printStackTrace();
-            }
-        }
         if(vendor == "WIOS") {
             try {
                 String result = new JsonTask().execute("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1").get();
