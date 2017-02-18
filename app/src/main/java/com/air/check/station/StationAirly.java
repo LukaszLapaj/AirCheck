@@ -17,8 +17,8 @@ import java.util.concurrent.ExecutionException;
  */
 
 public class StationAirly {
-    public static Double latitude;
-    public static Double longitude;
+    public Double latitude;
+    public Double longitude;
     public static int stationId;
     public static int index;
     public static Double distanceTo = Double.MAX_VALUE;
@@ -74,11 +74,11 @@ public class StationAirly {
         Stacja.pm1 = Math.round(pm1 * 100.0) / 100.0;
         Stacja.pm10 = Math.round(pm10 * 100.0) / 100.0;
         Stacja.pm25 = Math.round(pm25 * 100.0) / 100.0;
-        Stacja.pressure = (double)(Math.round(pressure / 100));
+        Stacja.pressure = (Math.round(pressure / 100.0)) / 1.0;
         Stacja.humidity = Math.round(humidity * 100.0) / 100.0;
         Stacja.temperature = Math.round(temperature * 10.0) / 10.0;
 
-        Stacja.distanceTo = (double)Math.round(Stacja.distanceTo * 100) / 100;
+        Stacja.distanceTo = Math.round(Stacja.distanceTo * 100.0) / 100.0;
     }
 
     private Double hasDoubleValue(JSONObject obj, String key) throws JSONException{
