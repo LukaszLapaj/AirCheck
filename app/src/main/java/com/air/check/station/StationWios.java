@@ -1,7 +1,5 @@
 package com.air.check.station;
 
-import android.util.Log;
-
 import com.air.check.utils.Distance;
 import com.air.check.utils.JsonTask;
 
@@ -16,31 +14,32 @@ import java.util.concurrent.ExecutionException;
  */
 
 public class StationWios {
-    public static String name;
+    public String name;
     public Double latitude;
     public Double longitude;
-    public static int stationId;
-    public static int cityId;
-    public static int index;
-    public static Double distanceTo;
-    public static int pm10, pm25, so2, no2, co, c6h6, o3;
+    public int stationId;
+    public int cityId;
+    public int index;
+    public Double distanceTo;
+    public int pm10, pm25, so2, no2, co, c6h6, o3;
 
     public StationWios(Double lat, Double lon, int sId, int cId, String nazwa){
-        Double latitude = lat;
-        Double longitude = lon;
-        int stationId = sId;
-        int cityId = cId;
-        String name = nazwa;
-        distanceTo = Double.MAX_VALUE;
-    }
-
-    public StationWios(Double lat, Double lon){
-        Double latitude = lat;
-        Double longitude = lon;
+        latitude = lat;
+        longitude = lon;
+        stationId = sId;
+        cityId = cId;
+        index = 0;
+        name = nazwa;
         distanceTo = Double.MAX_VALUE;
     }
 
     public StationWios(){
+        latitude = 0.0;
+        longitude = 0.0;
+        stationId = 0;
+        cityId = 0;
+        index = 0;
+        name = "";
         distanceTo = Double.MAX_VALUE;
     }
 
@@ -52,14 +51,17 @@ public class StationWios {
         StationWios piastow = new StationWios(50.099361, 20.018317, 14, 1,"Os.Piastów");
         StationWios zlotyrog = new StationWios(50.081197, 19.895358, 15, 1, "Złoty róg");
         StationWios stacja[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
-        StationWios Station = new StationWios(50.081197, 19.895358, 15, 1, "Złoty róg");
+        StationWios Station = new StationWios();
         for (int i = 0; i < stacja.length; i++) {
-//            if(Distance.calculate(lat, stacja[i].latitude, lon, stacja[i].longitude) < Station.distanceTo){
-//                Station.index = i;
-//                Station.latitude = stacja[i].latitude;
-//                Station.longitude = stacja[i].longitude;
-//                Station.distanceTo = Distance.calculate(lat, stacja[i].latitude, lon, stacja[i].longitude);
-//            }
+            if(Distance.calculate(lat, stacja[i].latitude, lon, stacja[i].longitude) < Station.distanceTo){
+                Station.index = i;
+                // Station.name = stacja[i].name;
+                Station.stationId = stacja[i].stationId;
+                Station.latitude = stacja[i].latitude;
+                Station.longitude = stacja[i].longitude;
+                Station.cityId = stacja[i].cityId;
+                Station.distanceTo = Distance.calculate(lat, stacja[i].latitude, lon, stacja[i].longitude);
+            }
         }
         Station.Update(Station);
         return Station;
@@ -73,34 +75,28 @@ public class StationWios {
         StationWios piastow = new StationWios(50.099361, 20.018317, 14, 1,"Os.Piastów");
         StationWios zlotyrog = new StationWios(50.081197, 19.895358, 15, 1, "Złoty róg");
         StationWios stacja[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
-        String result = new JsonTask().execute("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1").get();
+        String result = new JsonTask().execute("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=" + String.valueOf(Stacja.cityId)).get();
         JSONObject obj = new JSONObject(result);
         for (int i = 0; i < stacja.length; i++) {
             JSONArray actual = obj.getJSONObject("dane").getJSONArray("actual");
             JSONObject stacjaa = actual.getJSONObject(i);
-            int station_id = stacjaa.getInt("station_id");
-            if (station_id == Stacja.stationId) {
-                JSONArray details = stacjaa.optJSONArray("details");
+            if (i == Stacja.index) {
+                Stacja.name = stacjaa.getString("station_name");
+                JSONArray details = stacjaa.getJSONArray("details");
                 for (int j = 0; j < details.length(); ++j) {
-                    while (details.optJSONObject(i) != null) {
-                        Stacja.pm10 = checkValue(details, i, "pm10");
-                        Stacja.pm25 = checkValue(details, i, "pm2.5");
-                        Stacja.no2 = checkValue(details, i, "no2");
-                        Stacja.so2 = checkValue(details, i, "so2");
-                        Stacja.co = checkValue(details, i, "co");
-                        Stacja.o3 = checkValue(details, i, "o3");
-                        Stacja.c6h6 = checkValue(details, i, "c6h6");
-                    }
+                    if(details.optJSONObject(j).optString("o_wskaznik").equals("pm10"))
+                        Stacja.pm10 = (details.optJSONObject(j).getInt("o_value"));
+                    if(details.optJSONObject(j).optString("o_wskaznik").equals("pm2.5"))
+                        Stacja.pm25 = (details.optJSONObject(j).getInt("o_value"));
+                    if(details.optJSONObject(j).optString("o_wskaznik").equals("no2"))
+                        Stacja.no2 = (details.optJSONObject(j).getInt("o_value"));
+                    if(details.optJSONObject(j).optString("o_wskaznik").equals("so2"))
+                        Stacja.o3 = (details.optJSONObject(j).getInt("o_value"));
+                    if(details.optJSONObject(j).optString("o_wskaznik").equals("o3"))
+                        Stacja.c6h6 = (details.optJSONObject(j).getInt("o_value"));
                 }
-                Stacja.pm10 = details.optJSONObject(0).getInt("o_value");
             }
         }
-        Stacja.distanceTo = (double)Math.round(Stacja.distanceTo * 100) / 100;
-    }
-
-    int checkValue(JSONArray array, int index, String value) throws JSONException{
-        if(array.optJSONObject(index).optString(value) == value)
-            return array.optJSONObject(index).getInt("o_value");
-        return 0;
     }
 }
+

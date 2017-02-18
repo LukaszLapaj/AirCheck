@@ -28,6 +28,7 @@ import com.air.check.utils.Distance;
 import com.air.check.utils.JsonTask;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onLocationChanged(Location location) {
                 try {
                     t.setText("Update...");
-                    // new JsonTask().execute("http://188.166.73.207/add/1/" + location.getLatitude() + "/" + location.getLongitude());
+                    new JsonTask().execute("http://188.166.73.207/add/1/" + location.getLatitude() + "/" + location.getLongitude());
                     downloadParsePrintTable(location.getLatitude(), location.getLongitude());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -96,29 +97,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onProviderDisabled(String s) {
                 Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(i);
-                // runServices(60,10);
             }
         };
-
         checkPermission();
-    }
-
-    class stacja {
-        public double latitude;
-        public double longitude;
-        public int id;
-
-        public stacja(){
-            latitude = 0;
-            longitude = 0;
-            id = 0;
-        }
-
-        public stacja(double lat, double lon, int i){
-            latitude = lat;
-            longitude = lon;
-            id = i;
-        }
     }
 
     void checkPermission(){
@@ -157,70 +138,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // Time convert from milliseconds to seconds
         time *= 1000;
         Log.d("Response: ", "> Last Localisation Check" );
-        buildGoogleApiClient();
-        if (mGoogleApiClient != null)
-            mGoogleApiClient.connect();
+        int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+        if (statusCode == ConnectionResult.SUCCESS) {
+            buildGoogleApiClient();
+            if (mGoogleApiClient != null)
+                mGoogleApiClient.connect();
+        }else
+            Log.d("Response: ", "> No Google Play Services!" );
+        if (statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)
+            Log.d("Response: ", "> Google Play Services outdated!" );
         Log.d("Response: ", "> GPS Check" );
         //noinspection ResourceType
         locationManager.requestLocationUpdates("gps", time, distance, listener);
     }
 
-    double hadDoubleValue(JSONObject obj, String key) throws JSONException{
-        if(obj.has(key))
-            return obj.optDouble(key);
-        else
-            return 0;
-    }
     void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException {
         StationAirly Airly = new StationAirly().FindStation(Latitude, Longitude);
-        t.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Airly.distanceTo + "\n ");
-
-        int indexWios = 0;
-        double distanceToWios = Double.MAX_VALUE;
-
-        stacja krasinskiego = new stacja(50.05767, 19.926189, 1);
-        stacja bulwarowa = new stacja(50.069308, 20.053492, 2);
-        stacja bujaka = new stacja(50.010575, 19.949189, 3);
-        stacja dietla = new stacja(50.057447, 19.946008, 13);
-        stacja piastow = new stacja(50.099361, 20.018317, 14);
-        stacja zlotyrog = new stacja(50.081197, 19.895358, 15);
-        stacja stacje[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
-
-        for (int i = 0; i < stacje.length; i++) {
-            if(Distance.calculate(Latitude, stacje[i].latitude, Longitude, stacje[i].longitude) < distanceToWios){
-                indexWios =  i;
-                distanceToWios = Distance.calculate(Latitude, stacje[i].latitude, Longitude, stacje[i].longitude);
-            }
-        }
-
-        printResult(Double.toString(stacje[indexWios].latitude), Double.toString(stacje[indexWios].longitude), "WIOS", stacje[indexWios].id, distanceToWios);
-    }
-
-    void printResult(String Latitude, String Longitude, String vendor, int id, double distance/*, stacjaAirly stacjaAirlyClosest, stacjaWios stacjaWiosClosest*/) {
-        if(vendor == "WIOS") {
-            try {
-                String result = new JsonTask().execute("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=1").get();
-                JSONObject obj = new JSONObject(result);
-                int pm10 = 0;
-                for (int i = 0; i < 6; i++) {
-                    JSONObject dane = obj.getJSONObject("dane");
-                    JSONArray actual = dane.getJSONArray("actual");
-                    JSONObject stacja = actual.getJSONObject(i);
-                    int station_id  = stacja.getInt("station_id");
-                    if (station_id == id) {
-                        JSONArray details = stacja.optJSONArray("details");
-                        if(details.optJSONObject(0) != null)
-                            pm10 = details.optJSONObject(0).getInt("o_value");
-                        t.append("\n" + "Numer stacji WIOŚ: " + station_id + "\n" + "PM10: " + pm10 + "\n" + "Odleglość: " + Math.round(distance * 100) /100 + "\n ");
-                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                        t.append("\n" + timestamp);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-
-            }
-        }
+        t.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Math.round(Airly.distanceTo * 100) /100 + "\n ");
+        StationWios Wios = new StationWios().FindStation(Latitude, Longitude);
+        t.append("\n" + "Numer stacji WIOŚ: " + Wios.stationId + "\n" + Wios.name + "\n" + "PM10: " + Wios.pm10 + "\n" + "PM2.5: " + Wios.pm25 + "\n" + "Odleglość: " + Math.round(Wios.distanceTo * 100) /100 + "\n ");
+        t.append("\n" + "Miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, Wios.latitude, Airly.longitude, Wios.longitude) * 100) / 100);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        t.append("\n" + timestamp);
     }
 
     protected synchronized void buildGoogleApiClient() {

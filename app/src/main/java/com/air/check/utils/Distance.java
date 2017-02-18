@@ -5,7 +5,7 @@ package com.air.check.utils;
  */
 
 public class Distance {
-    public static double calculate(double lat1, double lat2, double lon1, double lon2) {
+    public static Double calculate(Double lat1, Double lat2, Double lon1, Double lon2) {
         final int R = 6371; // Radius of the earth
 
         Double latDistance = Math.toRadians(lat2 - lat1);
@@ -14,7 +14,7 @@ public class Distance {
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c * 1000; // convert to meters
+        Double distance = R * c * 1000; // convert to meters
 
         distance = Math.pow(distance, 2);
 
