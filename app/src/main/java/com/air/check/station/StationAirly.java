@@ -22,6 +22,96 @@ public class StationAirly extends Station{
     public static int index;
     public static Double distanceTo;
 
+    public static Double pm1, pm10, pm25, pressure, humidity, temperature;
+
+    public StationAirly(){
+        distanceTo = Double.MAX_VALUE;
+    }
+
+    public StationAirly(Double latitude, Double longitude){
+        this.setLatitude(latitude);
+        this.setLongitude(longitude);
+        distanceTo = Double.MAX_VALUE;
+    }
+
+    public StationAirly FindStation(Double lat, Double lon) throws ExecutionException, InterruptedException, JSONException {
+        StationAirly Station = new StationAirly(lat, lon);
+        String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=-89.999999999999&southwestLong=-180&northeastLat=89.999999999999&northeastLong=180&apikey=" + ApiKey.get()).get();
+        JSONArray stationsTable = new JSONArray(result);
+        for (int i = 0; i < stationsTable.length(); ++i) {
+            JSONObject jsonobject = stationsTable.getJSONObject(i);
+            JSONObject location = jsonobject.getJSONObject("location");
+            Double latitude = location.getDouble("latitude");
+            Double longitude = location.getDouble("longitude");
+            int sensorId = jsonobject.getInt("id");
+            if(Distance.calculate(lat, latitude, lon, longitude) <= distanceTo){
+                index = i;
+                stationId = sensorId;
+                Station.setLatitude(latitude);
+                Station.setLongitude(longitude);
+                distanceTo = Distance.calculate(lat, latitude, lon, longitude);
+            }
+        }
+        Station.Update(Station);
+        return Station;
+    }
+
+    void Update(StationAirly Stacja) throws ExecutionException, InterruptedException, JSONException {
+        String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + stationId + "&apikey=" + ApiKey.get()).get();
+        JSONObject obj = new JSONObject(result).getJSONObject("currentMeasurements");
+
+        // Set info
+        Log.d("Response: ", "> Parsing data" );
+        setPm1(hasDoubleValue(obj, "pm1"));
+        setPm10(hasDoubleValue(obj, "pm10"));
+        setPm25(hasDoubleValue(obj, "pm25"));
+        setPressure(hasDoubleValue(obj, "pressure"));
+        setHumidity(hasDoubleValue(obj, "humidity"));
+        setTemperature(hasDoubleValue(obj, "temperature"));
+
+        // Rounding
+        Log.d("Response: ", "> Rounding" );
+        roundPm();
+        roundPressure();
+        roundHumidity();
+        roundTemperature();
+
+        roundDistanceTo();
+    }
+
+    private Double hasDoubleValue(JSONObject obj, String key) throws JSONException{
+        if(obj.has(key))
+            return obj.optDouble(key);
+        else
+            return 0.0;
+    }
+
+    private void roundPm(){
+        this.pm1 = Math.round(pm1 * 100.0) / 100.0;
+        this.pm10 = Math.round(pm10 * 100.0) / 100.0;
+        this.pm25 = Math.round(pm25 * 100.0) / 100.0;
+    }
+
+    void roundPressure(){
+        this.pressure = Math.round(pressure / 100.0) / 1.0;
+    }
+
+    void roundHumidity(){
+        this.humidity = Math.round(humidity * 100.0) / 100.0;
+    }
+
+    void roundTemperature(){
+        this.temperature = Math.round(temperature * 10.0) / 10.0;
+    }
+    void roundDistanceTo(){
+        this.distanceTo = Math.round(distanceTo * 100.0) / 100.0 / 100 * 100;
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String toString(){
+        return " PM1: " + getPm1() + "\n " + "PM2.5: " + getPm25() + "\n " + "PM10: " + getPm10() + "\n " + "Ciśnienie: " + getPressure() + "hPa" + "\n " + "Wilgotność: " + getHumidity() + "%" + "\n " + "Temperatura: " + getTemperature() + "°C" + "\n " + "Odleglość: " + getDistanceTo();
+    }
+
     public static Double getDistanceTo() {
         return distanceTo;
     }
@@ -78,74 +168,4 @@ public class StationAirly extends Station{
         StationAirly.temperature = temperature;
     }
 
-    public static Double pm1, pm10, pm25, pressure, humidity, temperature;
-
-    public StationAirly(){
-        distanceTo = Double.MAX_VALUE;
-    }
-
-    public StationAirly(Double latitude, Double longitude){
-        this.latitude = latitude;
-        this.longitude = longitude;
-        distanceTo = Double.MAX_VALUE;
-    }
-
-    public StationAirly FindStation(Double lat, Double lon) throws ExecutionException, InterruptedException, JSONException {
-        StationAirly Station = new StationAirly(lat, lon);
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=-89.999999999999&southwestLong=-180&northeastLat=89.999999999999&northeastLong=180&apikey=" + ApiKey.get()).get();
-        JSONArray jsonarray = new JSONArray(result);
-        for (int i = 0; i < jsonarray.length(); ++i) {
-            JSONObject jsonobject = jsonarray.getJSONObject(i);
-            JSONObject location = jsonobject.getJSONObject("location");
-            Double latitude = location.getDouble("latitude");
-            Double longitude = location.getDouble("longitude");
-            int sensorId = jsonobject.getInt("id");
-            if(Distance.calculate(lat, latitude, lon, longitude) <= distanceTo){
-                index = i;
-                stationId = sensorId;
-                Station.latitude = latitude;
-                Station.longitude = longitude;
-                distanceTo = Distance.calculate(lat, latitude, lon, longitude);
-            }
-        }
-        Station.Update(Station);
-        return Station;
-    }
-
-    void Update(StationAirly Stacja) throws ExecutionException, InterruptedException, JSONException {
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + stationId + "&apikey=" + ApiKey.get()).get();
-        JSONObject obj = new JSONObject(result).getJSONObject("currentMeasurements");
-
-        // Set info
-        Log.d("Response: ", "> Parsing data" );
-        setPm1(hasDoubleValue(obj, "pm1"));
-        setPm10(hasDoubleValue(obj, "pm10"));
-        setPm25(hasDoubleValue(obj, "pm25"));
-        setPressure(hasDoubleValue(obj, "pressure"));
-        setHumidity(hasDoubleValue(obj, "humidity"));
-        setTemperature(hasDoubleValue(obj, "temperature"));
-
-        // Rounding
-        Log.d("Response: ", "> Rounding" );
-        setPm1(Math.round(pm1 * 100.0) / 100.0);
-        setPm10(Math.round(pm10 * 100.0) / 100.0);
-        setPm25(Math.round(pm25 * 100.0) / 100.0);
-        setPressure(Math.round(pressure / 100.0) / 1.0);
-        setHumidity(Math.round(humidity * 100.0) / 100.0);
-        setTemperature(Math.round(temperature * 10.0) / 10.0);
-
-        setDistanceTo(Math.round(distanceTo * 100.0) / 100.0);
-    }
-
-    private Double hasDoubleValue(JSONObject obj, String key) throws JSONException{
-        if(obj.has(key))
-            return obj.optDouble(key);
-        else
-            return 0.0;
-    }
-
-    @SuppressLint("DefaultLocale")
-    public String toString(){
-        return String.format(" PM1: %s\n PM2.5: %s\n PM10: %s\n Ciśnienie: %shPa\n Wilgotność: %s%%\n Temperatura: %s°C\n Odleglość: %d", pm1, pm25, pm10, pressure, humidity, temperature, Math.round(distanceTo * 100) / 100);
-    }
 }

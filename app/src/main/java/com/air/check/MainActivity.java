@@ -20,9 +20,6 @@ import android.util.Log;
 
 import com.air.check.station.StationWios;
 import com.air.check.station.StationAirly;
-import com.air.check.google.GoogleAPI;
-import com.air.check.utils.Distance;
-import com.air.check.utils.JsonTask;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -49,10 +46,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        t1 = (TextView) findViewById(R.id.textView);
-        t2 = (TextView) findViewById(R.id.textView2);
-        t3 = (TextView) findViewById(R.id.textView3);
-        b = (Button) findViewById(R.id.button);
+        t1 = findViewById(R.id.textView1);
+        t2 = findViewById(R.id.textView2);
+        t3 = findViewById(R.id.textView3);
+        b = findViewById(R.id.button);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -127,8 +124,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             buildGoogleApiClient();
             if (mGoogleApiClient != null)
                 mGoogleApiClient.connect();
-        }else
-            Log.d("Response: ", "> No Google Play Services!" );
+        }else {
+            Log.d("Response: ", "> No Google Play Services!");
+        }
         if (statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)
             Log.d("Response: ", "> Google Play Services outdated!" );
         Log.d("Response: ", "> GPS Check" );
@@ -140,11 +138,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 //        Latitude =  50.05767;
 //        Longitude = 19.926189;
         StationAirly Airly = new StationAirly().FindStation(Latitude, Longitude);
-        t1.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Math.round(Airly.distanceTo * 100) / 100);
+        t1.setText(Airly.toString());
         StationWios Wios = new StationWios().FindStation(Latitude, Longitude);
-        //t2.setText("Numer stacji WIOŚ: " + Wios.stationId);
-        t2.setText("Numer stacji WIOŚ: " + Wios.stationId + "\n" + Wios.name + "\n" + "PM10: " + Wios.pm10 + "\n" + "PM2.5: " + Wios.pm25 + "\n" + "Odleglość: " + Math.round(Wios.distanceTo * 100) / 100);
-        t3.setText("Odleglosc miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, Wios.latitude, Airly.longitude, Wios.longitude) * 100) / 100 + "\n" );
+        t2.setText(Wios.toString());
+        t3.setText(Airly.distanceTo(Wios));
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         t3.append("" + timestamp);
     }
