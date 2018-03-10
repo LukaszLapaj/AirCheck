@@ -18,11 +18,16 @@ import java.util.concurrent.ExecutionException;
  */
 
 public class StationAirly extends Station{
-    public static int stationId;
-    public static int index;
-    public static Double distanceTo;
-
-    public static Double pm1, pm10, pm25, pressure, humidity, temperature;
+    private static int stationId;
+    private static int index;
+    private static Double distanceTo;
+    private static Double pm1;
+    private static Double pm10;
+    private static Double pm25;
+    private static Double pressure;
+    private static Double humidity;
+    private static Double temperature;
+    private static Double CAQI;
 
     public StationAirly(){
         distanceTo = Double.MAX_VALUE;
@@ -44,20 +49,20 @@ public class StationAirly extends Station{
             Double latitude = location.getDouble("latitude");
             Double longitude = location.getDouble("longitude");
             int sensorId = jsonobject.getInt("id");
-            if(Distance.calculate(lat, latitude, lon, longitude) <= distanceTo){
-                index = i;
-                stationId = sensorId;
+            if(Distance.calculate(lat, latitude, lon, longitude) <= getDistanceTo()){
+                setIndex(i);
+                setStationId(sensorId);
                 Station.setLatitude(latitude);
                 Station.setLongitude(longitude);
-                distanceTo = Distance.calculate(lat, latitude, lon, longitude);
+                setDistanceTo(Distance.calculate(lat, latitude, lon, longitude));
             }
         }
-        Station.Update(Station);
+        Station.Update();
         return Station;
     }
 
-    void Update(StationAirly Stacja) throws ExecutionException, InterruptedException, JSONException {
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + stationId + "&apikey=" + ApiKey.get()).get();
+    void Update() throws ExecutionException, InterruptedException, JSONException {
+        String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + getStationId() + "&apikey=" + ApiKey.get()).get();
         JSONObject obj = new JSONObject(result).getJSONObject("currentMeasurements");
 
         // Set info
@@ -104,12 +109,28 @@ public class StationAirly extends Station{
         this.temperature = Math.round(temperature * 10.0) / 10.0;
     }
     void roundDistanceTo(){
-        this.distanceTo = Math.round(distanceTo * 100.0) / 100.0 / 100 * 100;
+        this.distanceTo = (double)Math.round(distanceTo) * 100 / 100;
     }
 
     @SuppressLint("DefaultLocale")
     public String toString(){
         return " PM1: " + getPm1() + "\n " + "PM2.5: " + getPm25() + "\n " + "PM10: " + getPm10() + "\n " + "Ciśnienie: " + getPressure() + "hPa" + "\n " + "Wilgotność: " + getHumidity() + "%" + "\n " + "Temperatura: " + getTemperature() + "°C" + "\n " + "Odleglość: " + getDistanceTo();
+    }
+
+    public static int getStationId() {
+        return stationId;
+    }
+
+    public static void setStationId(int stationId) {
+        StationAirly.stationId = stationId;
+    }
+
+    public static int getIndex() {
+        return index;
+    }
+
+    public static void setIndex(int index) {
+        StationAirly.index = index;
     }
 
     public static Double getDistanceTo() {
@@ -168,4 +189,11 @@ public class StationAirly extends Station{
         StationAirly.temperature = temperature;
     }
 
+    public static Double getCAQI() {
+        return CAQI;
+    }
+
+    public static void setCAQI(Double CAQI) {
+        StationAirly.CAQI = CAQI;
+    }
 }
