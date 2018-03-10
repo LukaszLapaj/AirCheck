@@ -31,21 +31,25 @@ public class StationWios extends Station{
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (getStationId() != 0) builder.append("Numer stacji WIOŚ: " + getStationId() + "\n");
-        if (getName() != "") builder.append(getName() + "\n");
-        if (getPm25() != 0) builder.append("PM2.5: " + getPm25() + "µg/m³" + "\n ");
-        if (getPm10() != 0) builder.append("PM10: " + getPm10() + "µg/m³" + "\n ");
+        if (getName() != "") builder.append("Nazwa stacji: " + getName() + "\n");
+        if (getPm25() != 0) builder.append("PM2.5: " + getPm25() + "µg/m³" + "\n");
+        if (getPm10() != 0) builder.append("PM10: " + getPm10() + "µg/m³" + "\n");
+        if (getSo2() != 0) builder.append("SO2: " + getSo2() + "µg/m³" + "\n");
+        if (getNo2() != 0) builder.append("NO2: " + getNo2() + "µg/m³" + "\n");
+        if (getCo() != 0) builder.append("CO: " + getCo() + "µg/m³" + "\n");
+        if (getC6h6() != 0) builder.append("C6H6: " + getC6h6() + "µg/m³" + "\n");
+        if (getO3() != 0) builder.append("O3: " + getO3() + "µg/m³" + "\n");
         if (getDistanceTo() != 0) builder.append("Odleglość: " + getDistanceTo() + "m");
         return builder.toString();
-        //return ("Numer stacji WIOŚ: " + getStationId() + "\n" + getName() + "\n" + "PM10: " + getPm10() + "\n" + "PM2.5: " + getPm25() + "\n" + "Odleglość: " + Math.round(getDistanceTo() * 100) / 100);
     }
 
-    public StationWios(Double lat, Double lon, int sId, int cId, String nazwa){
-        setLatitude(lat);
-        setLongitude(lon);
-        setStationId(sId);
-        setCityId(cId);
+    public StationWios(Double latitude, Double longitude, int stationId, int cityId, String name){
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setStationId(stationId);
+        setCityId(cityId);
         setIndex(0);
-        setName(nazwa);
+        setName(name);
     }
     public StationWios(Double latitude, Double longitude){
         this.setLatitude(latitude);
@@ -63,7 +67,7 @@ public class StationWios extends Station{
         setName("");
     }
 
-    public StationWios FindStation(Double lat, Double lon) throws ExecutionException, InterruptedException, JSONException {
+    public StationWios FindStation(Double userLatitude, Double userLongitude) throws ExecutionException, InterruptedException, JSONException {
         StationWios krasinskiego = new StationWios(50.05767, 19.926189, 1, 1, "Aleja Krasińskiego");
         StationWios bulwarowa = new StationWios(50.069308, 20.053492, 2, 1, "Bulwarowa");
         StationWios bujaka = new StationWios(50.010575, 19.949189, 3, 1, "Bujaka");
@@ -73,14 +77,14 @@ public class StationWios extends Station{
         StationWios stacja[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
         StationWios Station = new StationWios();
         for (int i = 0; i < stacja.length; i++) {
-            if(Distance.calculate(lat, stacja[i].getLatitude(), lon, stacja[i].getLongitude()) < Station.getDistanceTo()){
+            if(Distance.calculate(userLatitude, stacja[i].getLatitude(), userLongitude, stacja[i].getLongitude()) < Station.getDistanceTo()){
                 Station.setIndex(i);
                 // Station.name = stacja[i].name;
                 Station.setStationId(stacja[i].getStationId());
                 Station.setLatitude(stacja[i].getLatitude());
                 Station.setLongitude(stacja[i].getLongitude());
                 Station.setCityId(stacja[i].getCityId());
-                Station.setDistanceTo(Distance.calculate(lat, stacja[i].getLatitude(), lon, stacja[i].getLongitude()));
+                Station.setDistanceTo(Distance.calculate(userLatitude, stacja[i].getLatitude(), userLongitude, stacja[i].getLongitude()));
             }
         }
         Station.Update(Station);

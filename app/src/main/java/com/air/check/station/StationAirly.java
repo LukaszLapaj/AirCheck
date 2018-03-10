@@ -1,6 +1,5 @@
 package com.air.check.station;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.air.check.airly.ApiKey;
@@ -125,13 +124,16 @@ public class StationAirly extends Station{
 
     //@SuppressLint("DefaultLocale")
     public String toString(){
-        StringBuilder builder = new StringBuilder();
-        if (getPm1() != 0) builder.append(" PM1: " + getPm1() + "µg/m³" + "\n ");
-        if (getPm25() != 0) builder.append("PM2.5: " + getPm25() + "µg/m³" + "\n ");
-        if (getPm10() != 0) builder.append("PM10: " + getPm10() + "µg/m³" + "\n ");
-        if (getPressure() != 0) builder.append("Ciśnienie: " + getPressure() + "hPa" + "\n ");
-        if (getHumidity() != 0) builder.append("Wilgotność: " + getHumidity() + "%" + "\n ");
-        if (getTemperature() != 0) builder.append("Temperatura: " + getTemperature() + "°C" + "\n ");
+        StringBuilder builder = new StringBuilder("");
+        if (getLocality() != "") builder.append("Lokacja: " + getLocality() + "\n");
+        if (getRoute() != "") builder.append(" Lokacja: " + getRoute() + "\n");
+        if (getStreetnumber() != "") builder.append(" Lokacja: " + getStreetnumber() + "\n");
+        if (getPm1() != 0) builder.append("PM1: " + getPm1() + "µg/m³" + "\n");
+        if (getPm25() != 0) builder.append("PM2.5: " + getPm25() + "µg/m³" + "\n");
+        if (getPm10() != 0) builder.append("PM10: " + getPm10() + "µg/m³" + "\n");
+        if (getPressure() != 0) builder.append("Ciśnienie: " + getPressure() + "hPa" + "\n");
+        if (getHumidity() != 0) builder.append("Wilgotność: " + getHumidity() + "%" + "\n");
+        if (getTemperature() != 0) builder.append("Temperatura: " + getTemperature() + "°C" + "\n");
         if (getDistanceTo() != 0) builder.append("Odleglość: " + getDistanceTo() + "m");
         return builder.toString();
     }
