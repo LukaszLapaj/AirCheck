@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_size"
                 android:textColor="@color/text_color"
-                android:id="@+id/textView"
+                android:id="@+id/textView1"
                 android:fontFamily="sans-serif-light"
                 android:layout_margin="10dp"
                 android:minHeight="30dp"

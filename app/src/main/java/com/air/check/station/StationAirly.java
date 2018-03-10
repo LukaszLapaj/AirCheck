@@ -21,6 +21,63 @@ public class StationAirly extends Station{
     public static int stationId;
     public static int index;
     public static Double distanceTo;
+
+    public static Double getDistanceTo() {
+        return distanceTo;
+    }
+
+    public static void setDistanceTo(Double distanceTo) {
+        StationAirly.distanceTo = distanceTo;
+    }
+
+    public static Double getPm1() {
+        return pm1;
+    }
+
+    public static void setPm1(Double pm1) {
+        StationAirly.pm1 = pm1;
+    }
+
+    public static Double getPm10() {
+        return pm10;
+    }
+
+    public static void setPm10(Double pm10) {
+        StationAirly.pm10 = pm10;
+    }
+
+    public static Double getPm25() {
+        return pm25;
+    }
+
+    public static void setPm25(Double pm25) {
+        StationAirly.pm25 = pm25;
+    }
+
+    public static Double getPressure() {
+        return pressure;
+    }
+
+    public static void setPressure(Double pressure) {
+        StationAirly.pressure = pressure;
+    }
+
+    public static Double getHumidity() {
+        return humidity;
+    }
+
+    public static void setHumidity(Double humidity) {
+        StationAirly.humidity = humidity;
+    }
+
+    public static Double getTemperature() {
+        return temperature;
+    }
+
+    public static void setTemperature(Double temperature) {
+        StationAirly.temperature = temperature;
+    }
+
     public static Double pm1, pm10, pm25, pressure, humidity, temperature;
 
     public StationAirly(){
@@ -43,12 +100,12 @@ public class StationAirly extends Station{
             Double latitude = location.getDouble("latitude");
             Double longitude = location.getDouble("longitude");
             int sensorId = jsonobject.getInt("id");
-            if(Distance.calculate(lat, latitude, lon, longitude) <= Station.distanceTo){
-                Station.index = i;
-                Station.stationId = sensorId;
+            if(Distance.calculate(lat, latitude, lon, longitude) <= distanceTo){
+                index = i;
+                stationId = sensorId;
                 Station.latitude = latitude;
                 Station.longitude = longitude;
-                Station.distanceTo = Distance.calculate(lat, latitude, lon, longitude);
+                distanceTo = Distance.calculate(lat, latitude, lon, longitude);
             }
         }
         Station.Update(Station);
@@ -56,28 +113,28 @@ public class StationAirly extends Station{
     }
 
     void Update(StationAirly Stacja) throws ExecutionException, InterruptedException, JSONException {
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + Stacja.stationId + "&apikey=" + ApiKey.get()).get();
+        String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + stationId + "&apikey=" + ApiKey.get()).get();
         JSONObject obj = new JSONObject(result).getJSONObject("currentMeasurements");
 
-        // Get info
+        // Set info
         Log.d("Response: ", "> Parsing data" );
-        Stacja.pm1 = hasDoubleValue(obj, "pm1");
-        Stacja.pm10 = hasDoubleValue(obj, "pm10");
-        Stacja.pm25 = hasDoubleValue(obj, "pm25");
-        Stacja.pressure = hasDoubleValue(obj, "pressure");
-        Stacja.humidity = hasDoubleValue(obj, "humidity");
-        Stacja.temperature = hasDoubleValue(obj, "temperature");
+        setPm1(hasDoubleValue(obj, "pm1"));
+        setPm10(hasDoubleValue(obj, "pm10"));
+        setPm25(hasDoubleValue(obj, "pm25"));
+        setPressure(hasDoubleValue(obj, "pressure"));
+        setHumidity(hasDoubleValue(obj, "humidity"));
+        setTemperature(hasDoubleValue(obj, "temperature"));
 
-        // Calculation
+        // Rounding
         Log.d("Response: ", "> Rounding" );
-        Stacja.pm1 = Math.round(pm1 * 100.0) / 100.0;
-        Stacja.pm10 = Math.round(pm10 * 100.0) / 100.0;
-        Stacja.pm25 = Math.round(pm25 * 100.0) / 100.0;
-        Stacja.pressure = (Math.round(pressure / 100.0)) / 1.0;
-        Stacja.humidity = Math.round(humidity * 100.0) / 100.0;
-        Stacja.temperature = Math.round(temperature * 10.0) / 10.0;
+        setPm1(Math.round(pm1 * 100.0) / 100.0);
+        setPm10(Math.round(pm10 * 100.0) / 100.0);
+        setPm25(Math.round(pm25 * 100.0) / 100.0);
+        setPressure(Math.round(pressure / 100.0) / 1.0);
+        setHumidity(Math.round(humidity * 100.0) / 100.0);
+        setTemperature(Math.round(temperature * 10.0) / 10.0);
 
-        Stacja.distanceTo = Math.round(Stacja.distanceTo * 100.0) / 100.0;
+        setDistanceTo(Math.round(distanceTo * 100.0) / 100.0);
     }
 
     private Double hasDoubleValue(JSONObject obj, String key) throws JSONException{

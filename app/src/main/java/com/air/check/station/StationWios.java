@@ -21,6 +21,13 @@ public class StationWios extends Station{
     public int pm10, pm25, so2, no2, co, c6h6, o3;
 
     public StationWios(Double lat, Double lon, int sId, int cId, String nazwa){
+        latitude = lat;
+        longitude = lon;
+        stationId = sId;
+        cityId = cId;
+        index = 0;
+        name = nazwa;
+    }
     public StationWios(Double latitude, Double longitude){
         this.latitude = latitude;
         this.longitude = longitude;

@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onLocationChanged(Location location) {
                 try {
                     t1.setText("Update...");
-                    new JsonTask().execute("http://188.166.73.207/add/1/" + location.getLatitude() + "/" + location.getLongitude());
                     downloadParsePrintTable(location.getLatitude(), location.getLongitude());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         StationWios Wios = new StationWios().FindStation(Latitude, Longitude);
         //t2.setText("Numer stacji WIOŚ: " + Wios.stationId);
         t2.setText("Numer stacji WIOŚ: " + Wios.stationId + "\n" + Wios.name + "\n" + "PM10: " + Wios.pm10 + "\n" + "PM2.5: " + Wios.pm25 + "\n" + "Odleglość: " + Math.round(Wios.distanceTo * 100) / 100);
-        t3.setText("Miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, Wios.latitude, Airly.longitude, Wios.longitude) * 100) / 100 + "\n" );
+        t3.setText("Odleglosc miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, Wios.latitude, Airly.longitude, Wios.longitude) * 100) / 100 + "\n" );
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         t3.append("" + timestamp);
     }
