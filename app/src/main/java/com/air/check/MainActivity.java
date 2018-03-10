@@ -36,9 +36,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private Button b;
-    private TextView t1;
-    private TextView t2;
-    private TextView t3;
+    private TextView t1, t2, t3;
 
     private LocationManager locationManager;
     private LocationListener listener;
@@ -145,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         StationAirly Airly = new StationAirly().FindStation(Latitude, Longitude);
         t1.setText(" PM1: " + Airly.pm1 + "\n " + "PM2.5: " + Airly.pm25 + "\n " + "PM10: " + Airly.pm10 + "\n " + "Ciśnienie: " + Airly.pressure + "hPa" + "\n " + "Wilgotność: " + Airly.humidity + "%" + "\n " + "Temperatura: " + Airly.temperature + "°C" + "\n " + "Odleglość: " + Math.round(Airly.distanceTo * 100) / 100);
         StationWios Wios = new StationWios().FindStation(Latitude, Longitude);
+        //t2.setText("Numer stacji WIOŚ: " + Wios.stationId);
         t2.setText("Numer stacji WIOŚ: " + Wios.stationId + "\n" + Wios.name + "\n" + "PM10: " + Wios.pm10 + "\n" + "PM2.5: " + Wios.pm25 + "\n" + "Odleglość: " + Math.round(Wios.distanceTo * 100) / 100);
         t3.setText("Miedzy stacjami: " + Math.round(Distance.calculate(Airly.latitude, Wios.latitude, Airly.longitude, Wios.longitude) * 100) / 100 + "\n" );
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());

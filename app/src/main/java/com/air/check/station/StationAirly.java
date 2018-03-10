@@ -1,5 +1,6 @@
 package com.air.check.station;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.air.check.airly.ApiKey;
@@ -16,29 +17,27 @@ import java.util.concurrent.ExecutionException;
  * Created by Lukasz on 16.02.2017.
  */
 
-public class StationAirly {
-    public Double latitude;
-    public Double longitude;
+public class StationAirly extends Station{
     public static int stationId;
     public static int index;
-    public static Double distanceTo = Double.MAX_VALUE;
+    public static Double distanceTo;
     public static Double pm1, pm10, pm25, pressure, humidity, temperature;
 
     public StationAirly(){
         distanceTo = Double.MAX_VALUE;
     }
 
-    public StationAirly(Double lat, Double lon){
-        Double latitude = lat;
-        Double longitude = lon;
+    public StationAirly(Double latitude, Double longitude){
+        this.latitude = latitude;
+        this.longitude = longitude;
         distanceTo = Double.MAX_VALUE;
     }
 
     public StationAirly FindStation(Double lat, Double lon) throws ExecutionException, InterruptedException, JSONException {
         StationAirly Station = new StationAirly(lat, lon);
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=0&southwestLong=0&northeastLat=89&northeastLong=180&apikey=" + ApiKey.get()).get();
+        String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=-89.999999999999&southwestLong=-180&northeastLat=89.999999999999&northeastLong=180&apikey=" + ApiKey.get()).get();
         JSONArray jsonarray = new JSONArray(result);
-        for (int i = 0; i < jsonarray.length(); i++) {
+        for (int i = 0; i < jsonarray.length(); ++i) {
             JSONObject jsonobject = jsonarray.getJSONObject(i);
             JSONObject location = jsonobject.getJSONObject("location");
             Double latitude = location.getDouble("latitude");
@@ -86,5 +85,10 @@ public class StationAirly {
             return obj.optDouble(key);
         else
             return 0.0;
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String toString(){
+        return String.format(" PM1: %s\n PM2.5: %s\n PM10: %s\n Ciśnienie: %shPa\n Wilgotność: %s%%\n Temperatura: %s°C\n Odleglość: %d", pm1, pm25, pm10, pressure, humidity, temperature, Math.round(distanceTo * 100) / 100);
     }
 }

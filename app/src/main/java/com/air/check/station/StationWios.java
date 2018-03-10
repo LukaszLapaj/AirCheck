@@ -13,23 +13,17 @@ import java.util.concurrent.ExecutionException;
  * Created by Lukasz on 16.02.2017.
  */
 
-public class StationWios {
+public class StationWios extends Station{
     public String name;
-    public Double latitude;
-    public Double longitude;
-    public int stationId;
-    public int cityId;
+    public int cityId, stationId;
     public int index;
     public Double distanceTo;
     public int pm10, pm25, so2, no2, co, c6h6, o3;
 
     public StationWios(Double lat, Double lon, int sId, int cId, String nazwa){
-        latitude = lat;
-        longitude = lon;
-        stationId = sId;
-        cityId = cId;
-        index = 0;
-        name = nazwa;
+    public StationWios(Double latitude, Double longitude){
+        this.latitude = latitude;
+        this.longitude = longitude;
         distanceTo = Double.MAX_VALUE;
     }
 
@@ -39,8 +33,8 @@ public class StationWios {
         stationId = 0;
         cityId = 0;
         index = 0;
-        name = "";
         distanceTo = Double.MAX_VALUE;
+        name = "";
     }
 
     public StationWios FindStation(Double lat, Double lon) throws ExecutionException, InterruptedException, JSONException {
