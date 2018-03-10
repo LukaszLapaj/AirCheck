@@ -29,7 +29,14 @@ public class StationWios extends Station{
 
     @Override
     public String toString() {
-        return ("Numer stacji WIOŚ: " + getStationId() + "\n" + getName() + "\n" + "PM10: " + getPm10() + "\n" + "PM2.5: " + getPm25() + "\n" + "Odleglość: " + Math.round(getDistanceTo() * 100) / 100);
+        StringBuilder builder = new StringBuilder();
+        if (getStationId() != 0) builder.append("Numer stacji WIOŚ: " + getStationId() + "\n");
+        if (getName() != "") builder.append(getName() + "\n");
+        if (getPm25() != 0) builder.append("PM2.5: " + getPm25() + "µg/m³" + "\n ");
+        if (getPm10() != 0) builder.append("PM10: " + getPm10() + "µg/m³" + "\n ");
+        if (getDistanceTo() != 0) builder.append("Odleglość: " + getDistanceTo() + "m");
+        return builder.toString();
+        //return ("Numer stacji WIOŚ: " + getStationId() + "\n" + getName() + "\n" + "PM10: " + getPm10() + "\n" + "PM2.5: " + getPm25() + "\n" + "Odleglość: " + Math.round(getDistanceTo() * 100) / 100);
     }
 
     public StationWios(Double lat, Double lon, int sId, int cId, String nazwa){
@@ -110,6 +117,11 @@ public class StationWios extends Station{
                 }
             }
         }
+        roundDistanceTo();
+    }
+
+    void roundDistanceTo(){
+        distanceTo = (double)Math.round(distanceTo) * 100 / 100;
     }
 
     public Double getDistanceTo() {
