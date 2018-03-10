@@ -27,6 +27,6 @@ public class Station {
     }
 
     public String distanceTo(Station s) {
-        return "Odleglosc miedzy stacjami: " + Math.round(Distance.calculate(s.getLatitude(), this.getLatitude(), s.getLongitude(), this.getLongitude()) * 100) / 100 + "\n";
+        return "Odleglosc miedzy stacjami: " + Math.round(Distance.calculate(s.getLatitude(), this.getLatitude(), s.getLongitude(), this.getLongitude()) * 100) / 100 + "m" + "\n";
     }
 }

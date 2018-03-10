@@ -30,16 +30,16 @@ public class StationWios extends Station{
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if (getStationId() != 0) builder.append("Numer stacji WIOŚ: " + getStationId() + "\n");
-        if (getName() != "") builder.append("Nazwa stacji: " + getName() + "\n");
-        if (getPm25() != 0) builder.append("PM2.5: " + getPm25() + "µg/m³" + "\n");
-        if (getPm10() != 0) builder.append("PM10: " + getPm10() + "µg/m³" + "\n");
-        if (getSo2() != 0) builder.append("SO2: " + getSo2() + "µg/m³" + "\n");
-        if (getNo2() != 0) builder.append("NO2: " + getNo2() + "µg/m³" + "\n");
-        if (getCo() != 0) builder.append("CO: " + getCo() + "µg/m³" + "\n");
-        if (getC6h6() != 0) builder.append("C6H6: " + getC6h6() + "µg/m³" + "\n");
-        if (getO3() != 0) builder.append("O3: " + getO3() + "µg/m³" + "\n");
-        if (getDistanceTo() != 0) builder.append("Odleglość: " + getDistanceTo() + "m");
+        if (getStationId() != 0) builder.append("Numer stacji WIOŚ: " + getStationId());
+        if (getName() != "") builder.append("\n" + "Nazwa stacji: " + getName());
+        if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
+        if (getPm10() != 0) builder.append("\n" + "PM10: " + getPm10() + "µg/m³");
+        if (getSo2() != 0) builder.append("\n" + "SO2: " + getSo2() + "µg/m³");
+        if (getNo2() != 0) builder.append("\n" + "NO2: " + getNo2() + "µg/m³");
+        if (getCo() != 0) builder.append("\n" + "CO: " + getCo() + "µg/m³");
+        if (getC6h6() != 0) builder.append("\n" + "C6H6: " + getC6h6() + "µg/m³");
+        if (getO3() != 0) builder.append("\n" + "O3: " + getO3() + "µg/m³");
+        if (getDistanceTo() != 0) builder.append("\n" + "Odleglość: " + getDistanceTo() + "m");
         return builder.toString();
     }
 

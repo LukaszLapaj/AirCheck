@@ -90,6 +90,7 @@ public class StationAirly extends Station{
         roundPressure();
         roundHumidity();
         roundTemperature();
+        roundAirQualityIndex();
 
         roundDistanceTo();
     }
@@ -122,19 +123,24 @@ public class StationAirly extends Station{
         distanceTo = (double)Math.round(distanceTo) * 100 / 100;
     }
 
+    void roundAirQualityIndex(){
+        airQualityIndex = Math.round(airQualityIndex * 100.0) / 100.0;
+    }
+
     //@SuppressLint("DefaultLocale")
     public String toString(){
         StringBuilder builder = new StringBuilder("");
-        if (getLocality() != "") builder.append("Lokacja: " + getLocality() + "\n");
-        if (getRoute() != "") builder.append(" Lokacja: " + getRoute() + "\n");
-        if (getStreetnumber() != "") builder.append(" Lokacja: " + getStreetnumber() + "\n");
-        if (getPm1() != 0) builder.append("PM1: " + getPm1() + "µg/m³" + "\n");
-        if (getPm25() != 0) builder.append("PM2.5: " + getPm25() + "µg/m³" + "\n");
-        if (getPm10() != 0) builder.append("PM10: " + getPm10() + "µg/m³" + "\n");
-        if (getPressure() != 0) builder.append("Ciśnienie: " + getPressure() + "hPa" + "\n");
-        if (getHumidity() != 0) builder.append("Wilgotność: " + getHumidity() + "%" + "\n");
-        if (getTemperature() != 0) builder.append("Temperatura: " + getTemperature() + "°C" + "\n");
-        if (getDistanceTo() != 0) builder.append("Odleglość: " + getDistanceTo() + "m");
+        if (getLocality() != "") builder.append("Lokalizacja: " + getLocality());
+        if (getRoute() != "" && getStreetnumber() != "") builder.append("\n" + "Adres: " + getRoute() + " " + getStreetnumber());
+        //if () builder.append("Numer ulicy: " + getStreetnumber() + "\n");
+        if (getAirQualityIndex() != 0) builder.append("\n" + "AQI: " + getAirQualityIndex());
+        if (getPm1() != 0) builder.append("\n" + "PM1: " + getPm1() + "µg/m³");
+        if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
+        if (getPm10() != 0) builder.append("\n" + "PM10: " + getPm10() + "µg/m³");
+        if (getPressure() != 0) builder.append("\n" + "Ciśnienie: " + getPressure() + "hPa");
+        if (getHumidity() != 0) builder.append("\n" + "Wilgotność: " + getHumidity() + "%");
+        if (getTemperature() != 0) builder.append("\n" + "Temperatura: " + getTemperature() + "°C");
+        if (getDistanceTo() != 0) builder.append("\n" + "Odleglość: " + getDistanceTo() + "m");
         return builder.toString();
     }
 

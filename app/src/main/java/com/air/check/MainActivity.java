@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         t2.setText(Wios.toString());
         t3.setText(Airly.distanceTo(Wios));
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        t3.append("" + timestamp);
+        t3.append("Ostatnia aktualizacja: " + timestamp);
     }
 
     protected synchronized void buildGoogleApiClient() {
