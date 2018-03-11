@@ -36,14 +36,7 @@ public class StationAirly extends Station{
         distanceTo = Double.MAX_VALUE;
     }
 
-    public StationAirly(Double latitude, Double longitude){
-        this.setLatitude(latitude);
-        this.setLongitude(longitude);
-        distanceTo = Double.MAX_VALUE;
-    }
-
     public StationAirly FindStation(Double userLatitude, Double userLongitude) throws ExecutionException, InterruptedException, JSONException {
-        StationAirly Station = new StationAirly(userLatitude, userLongitude);
         String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=-89.999999999999&southwestLong=-180&northeastLat=89.999999999999&northeastLong=180&apikey=" + ApiKey.get()).get();
         JSONArray stationsTable = new JSONArray(result);
         for (int i = 0; i < stationsTable.length(); ++i) {
@@ -54,8 +47,8 @@ public class StationAirly extends Station{
             int sensorId = stationsTableJSONObject.getInt("id");
             if(Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude) <= getDistanceTo()){
                 setStationId(sensorId);
-                Station.setLatitude(testLatitude);
-                Station.setLongitude(testLongitude);
+                setLatitude(testLatitude);
+                setLongitude(testLongitude);
                 JSONObject address = stationsTableJSONObject.getJSONObject("address");
                 setCountry(address.optString("country"));
                 setLocality(address.optString("locality"));
@@ -64,8 +57,8 @@ public class StationAirly extends Station{
                 setDistanceTo(Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude));
             }
         }
-        Station.Update();
-        return Station;
+        Update();
+        return this;
     }
 
     void Update() throws ExecutionException, InterruptedException, JSONException {
@@ -91,13 +84,6 @@ public class StationAirly extends Station{
         roundAirQualityIndex();
 
         roundDistanceTo();
-    }
-
-    private Double hasDoubleValue(JSONObject obj, String key) throws JSONException{
-        if(obj.has(key))
-            return obj.optDouble(key);
-        else
-            return 0.0;
     }
 
     private void roundPm(){

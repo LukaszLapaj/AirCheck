@@ -14,25 +14,27 @@ import java.util.concurrent.ExecutionException;
  */
 
 public class StationWios extends Station{
-    private String name;
     private int cityId;
     private int stationId;
     private int index;
     private Double distanceTo;
-    private int pm10;
-    private int pm25;
-    private int so2;
-    private int no2;
-    private int co;
-    private int c6h6;
-    private int o3;
+    private Double pm10;
+    private Double pm25;
+    private Double so2;
+    private Double no2;
+    private Double co;
+    private Double c6h6;
+    private Double o3;
+    private String name;
+
+
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (getStationId() != 0) builder.append("Numer stacji WIOŚ: " + getStationId());
         if (!getName().equals("")) builder.append("\n" + "Nazwa stacji: " + getName());
-        //if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
+        if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
         if (getPm10() != 0) builder.append("\n" + "PM10: " + getPm10() + "µg/m³");
         if (getSo2() != 0) builder.append("\n" + "SO2: " + getSo2() + "µg/m³");
         if (getNo2() != 0) builder.append("\n" + "NO2: " + getNo2() + "µg/m³");
@@ -44,6 +46,13 @@ public class StationWios extends Station{
     }
 
     public StationWios(){
+        setPm10(0.0);
+        setPm25(0.0);
+        setNo2(0.0);
+        setSo2(0.0);
+        setO3(0.0);
+        setCo(0.0);
+        setC6h6(0.0);
         setLatitude(0.0);
         setLongitude(0.0);
         setStationId(0);
@@ -52,7 +61,6 @@ public class StationWios extends Station{
     }
 
     public StationWios FindStation(Double userLatitide, Double userLongtitude) throws ExecutionException, InterruptedException, JSONException {
-        StationWios Station = new StationWios();
         String result = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/station/findAll").get();
         JSONArray jsonarray = new JSONArray(result);
         for (int i = 0; i < jsonarray.length(); ++i) {
@@ -60,17 +68,17 @@ public class StationWios extends Station{
             Double stationLatitude = jsonobject.getDouble("gegrLat");
             Double stationLongitude = jsonobject.getDouble("gegrLon");
             int stationId = jsonobject.getInt("id");
-            if(Distance.calculate(userLatitide, stationLatitude, userLongtitude, stationLongitude) <= Station.getDistanceTo()){
-                Station.setStationId(stationId);
-                Station.setName(jsonobject.getString("stationName"));
-                Station.setCityId(jsonobject.getJSONObject("city").getInt("id"));
-                Station.setLatitude(stationLatitude);
-                Station.setLongitude(stationLongitude);
-                Station.setDistanceTo(Distance.calculate(userLatitide, Station.getLatitude(), userLongtitude, Station.getLongitude()));
+            if(Distance.calculate(userLatitide, stationLatitude, userLongtitude, stationLongitude) <= getDistanceTo()){
+                setStationId(stationId);
+                setName(jsonobject.getString("stationName"));
+                setCityId(jsonobject.getJSONObject("city").getInt("id"));
+                setLatitude(stationLatitude);
+                setLongitude(stationLongitude);
+                setDistanceTo(Distance.calculate(userLatitide, getLatitude(), userLongtitude, getLongitude()));
             }
         }
-        Station.Update();
-        return Station;
+        Update();
+        return this;
     }
 
     public void Update() throws ExecutionException, InterruptedException, JSONException {
@@ -82,26 +90,25 @@ public class StationWios extends Station{
                 String test = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/data/getData/" + stationIterator.get("id")).get();
                 JSONObject bla = new JSONObject(test);
                 JSONArray xxx = bla.getJSONArray("values");
-                setPm10((xxx.getJSONObject(2).optDouble("value")));
+                //setPm10(((xxx.getJSONObject(2).optDouble("value"))));
+                setPm10(hasDoubleValue(xxx.getJSONObject(2), "value"));
             }
             if(stationIterator.getJSONObject("param").optString("paramCode").equals("PM2.5")) {}
             if(stationIterator.getJSONObject("param").optString("paramCode").equals("NO2")) {}
             if(stationIterator.getJSONObject("param").optString("paramCode").equals("SO2")) {}
             if(stationIterator.getJSONObject("param").optString("paramCode").equals("O3")){}
         }
+        roundPm();
         roundDistanceTo();
     }
 
+    private void roundPm(){
+        setPm10(Math.round(getPm10() * 100.0) / 100.0);
+        setPm25(Math.round(getPm25() * 100.0) / 100.0);
+    }
+
     void roundDistanceTo(){
-        distanceTo = (double)Math.round(distanceTo) * 100 / 100;
-    }
-
-    public Double getDistanceTo() {
-        return distanceTo;
-    }
-
-    public void setDistanceTo(Double distanceTo) {
-        this.distanceTo = distanceTo;
+        setDistanceTo((double)Math.round(getDistanceTo()) * 100 / 100);
     }
 
     public int getCityId() {
@@ -110,14 +117,6 @@ public class StationWios extends Station{
 
     public void setCityId(int cityId) {
         this.cityId = cityId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getStationId() {
@@ -136,60 +135,76 @@ public class StationWios extends Station{
         this.index = index;
     }
 
-    public int getPm10() {
+    public Double getDistanceTo() {
+        return distanceTo;
+    }
+
+    public void setDistanceTo(Double distanceTo) {
+        this.distanceTo = distanceTo;
+    }
+
+    public Double getPm10() {
         return pm10;
     }
 
-    public void setPm10(int pm10) {
+    public void setPm10(Double pm10) {
         this.pm10 = pm10;
     }
 
-    public int getPm25() {
+    public Double getPm25() {
         return pm25;
     }
 
-    public void setPm25(int pm25) {
+    public void setPm25(Double pm25) {
         this.pm25 = pm25;
     }
 
-    public int getSo2() {
+    public Double getSo2() {
         return so2;
     }
 
-    public void setSo2(int so2) {
+    public void setSo2(Double so2) {
         this.so2 = so2;
     }
 
-    public int getNo2() {
+    public Double getNo2() {
         return no2;
     }
 
-    public void setNo2(int no2) {
+    public void setNo2(Double no2) {
         this.no2 = no2;
     }
 
-    public int getCo() {
+    public Double getCo() {
         return co;
     }
 
-    public void setCo(int co) {
+    public void setCo(Double co) {
         this.co = co;
     }
 
-    public int getC6h6() {
+    public Double getC6h6() {
         return c6h6;
     }
 
-    public void setC6h6(int c6h6) {
+    public void setC6h6(Double c6h6) {
         this.c6h6 = c6h6;
     }
 
-    public int getO3() {
+    public Double getO3() {
         return o3;
     }
 
-    public void setO3(int o3) {
+    public void setO3(Double o3) {
         this.o3 = o3;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
 
