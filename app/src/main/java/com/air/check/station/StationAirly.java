@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutionException;
 
 public class StationAirly extends Station{
     private static int stationId;
-    private static int index;
     private static Double distanceTo;
     private static Double pm1;
     private static Double pm10;
@@ -54,7 +53,6 @@ public class StationAirly extends Station{
             Double testLongitude = location.getDouble("longitude");
             int sensorId = stationsTableJSONObject.getInt("id");
             if(Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude) <= getDistanceTo()){
-                setIndex(i);
                 setStationId(sensorId);
                 Station.setLatitude(testLatitude);
                 Station.setLongitude(testLongitude);
@@ -131,8 +129,7 @@ public class StationAirly extends Station{
     public String toString(){
         StringBuilder builder = new StringBuilder("");
         if (getLocality() != "") builder.append("Lokalizacja: " + getLocality());
-        if (getRoute() != "" && getStreetnumber() != "") builder.append("\n" + "Adres: " + getRoute() + " " + getStreetnumber());
-        //if () builder.append("Numer ulicy: " + getStreetnumber() + "\n");
+        if (!getRoute().equals("")) builder.append("\n" + "Adres: " + getRoute() + " " + getStreetnumber());
         if (getAirQualityIndex() != 0) builder.append("\n" + "AQI: " + getAirQualityIndex());
         if (getPm1() != 0) builder.append("\n" + "PM1: " + getPm1() + "µg/m³");
         if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
@@ -150,14 +147,6 @@ public class StationAirly extends Station{
 
     public static void setStationId(int stationId) {
         StationAirly.stationId = stationId;
-    }
-
-    public static int getIndex() {
-        return index;
-    }
-
-    public static void setIndex(int index) {
-        StationAirly.index = index;
     }
 
     public static Double getDistanceTo() {

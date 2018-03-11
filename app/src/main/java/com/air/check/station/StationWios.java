@@ -31,8 +31,8 @@ public class StationWios extends Station{
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (getStationId() != 0) builder.append("Numer stacji WIOŚ: " + getStationId());
-        if (getName() != "") builder.append("\n" + "Nazwa stacji: " + getName());
-        if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
+        if (!getName().equals("")) builder.append("\n" + "Nazwa stacji: " + getName());
+        //if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
         if (getPm10() != 0) builder.append("\n" + "PM10: " + getPm10() + "µg/m³");
         if (getSo2() != 0) builder.append("\n" + "SO2: " + getSo2() + "µg/m³");
         if (getNo2() != 0) builder.append("\n" + "NO2: " + getNo2() + "µg/m³");
@@ -43,83 +43,51 @@ public class StationWios extends Station{
         return builder.toString();
     }
 
-    public StationWios(Double latitude, Double longitude, int stationId, int cityId, String name){
-        setLatitude(latitude);
-        setLongitude(longitude);
-        setStationId(stationId);
-        setCityId(cityId);
-        setIndex(0);
-        setName(name);
-    }
-    public StationWios(Double latitude, Double longitude){
-        this.setLatitude(latitude);
-        this.setLongitude(longitude);
-        setDistanceTo(Double.MAX_VALUE);
-    }
-
     public StationWios(){
         setLatitude(0.0);
         setLongitude(0.0);
         setStationId(0);
-        setCityId(0);
-        setIndex(0);
         setDistanceTo(Double.MAX_VALUE);
         setName("");
     }
 
-    public StationWios FindStation(Double userLatitude, Double userLongitude) throws ExecutionException, InterruptedException, JSONException {
-        StationWios krasinskiego = new StationWios(50.05767, 19.926189, 1, 1, "Aleja Krasińskiego");
-        StationWios bulwarowa = new StationWios(50.069308, 20.053492, 2, 1, "Bulwarowa");
-        StationWios bujaka = new StationWios(50.010575, 19.949189, 3, 1, "Bujaka");
-        StationWios dietla = new StationWios(50.057447, 19.946008, 13, 1, "Dietla");
-        StationWios piastow = new StationWios(50.099361, 20.018317, 14, 1,"Os.Piastów");
-        StationWios zlotyrog = new StationWios(50.081197, 19.895358, 15, 1, "Złoty róg");
-        StationWios stacja[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
+    public StationWios FindStation(Double userLatitide, Double userLongtitude) throws ExecutionException, InterruptedException, JSONException {
         StationWios Station = new StationWios();
-        for (int i = 0; i < stacja.length; i++) {
-            if(Distance.calculate(userLatitude, stacja[i].getLatitude(), userLongitude, stacja[i].getLongitude()) < Station.getDistanceTo()){
-                Station.setIndex(i);
-                // Station.name = stacja[i].name;
-                Station.setStationId(stacja[i].getStationId());
-                Station.setLatitude(stacja[i].getLatitude());
-                Station.setLongitude(stacja[i].getLongitude());
-                Station.setCityId(stacja[i].getCityId());
-                Station.setDistanceTo(Distance.calculate(userLatitude, stacja[i].getLatitude(), userLongitude, stacja[i].getLongitude()));
+        String result = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/station/findAll").get();
+        JSONArray jsonarray = new JSONArray(result);
+        for (int i = 0; i < jsonarray.length(); ++i) {
+            JSONObject jsonobject = jsonarray.getJSONObject(i);
+            Double stationLatitude = jsonobject.getDouble("gegrLat");
+            Double stationLongitude = jsonobject.getDouble("gegrLon");
+            int stationId = jsonobject.getInt("id");
+            if(Distance.calculate(userLatitide, stationLatitude, userLongtitude, stationLongitude) <= Station.getDistanceTo()){
+                Station.setStationId(stationId);
+                Station.setName(jsonobject.getString("stationName"));
+                Station.setCityId(jsonobject.getJSONObject("city").getInt("id"));
+                Station.setLatitude(stationLatitude);
+                Station.setLongitude(stationLongitude);
+                Station.setDistanceTo(Distance.calculate(userLatitide, Station.getLatitude(), userLongtitude, Station.getLongitude()));
             }
         }
-        Station.Update(Station);
+        Station.Update();
         return Station;
     }
 
-    public void Update(StationWios Stacja) throws ExecutionException, InterruptedException, JSONException {
-        StationWios krasinskiego = new StationWios(50.05767, 19.926189, 1, 1, "Aleja Krasińskiego");
-        StationWios bulwarowa = new StationWios(50.069308, 20.053492, 2, 1, "Bulwarowa");
-        StationWios bujaka = new StationWios(50.010575, 19.949189, 3, 1, "Bujaka");
-        StationWios dietla = new StationWios(50.057447, 19.946008, 13, 1, "Dietla");
-        StationWios piastow = new StationWios(50.099361, 20.018317, 14, 1,"Os.Piastów");
-        StationWios zlotyrog = new StationWios(50.081197, 19.895358, 15, 1, "Złoty róg");
-        StationWios stacja[] = {krasinskiego, bulwarowa, bujaka, dietla, piastow, zlotyrog};
-        String result = new JsonTask().execute("http://powietrze.malopolska.pl/_powietrzeapi/api/dane?act=danemiasta&ci_id=" + String.valueOf(Stacja.getCityId())).get();
-        JSONObject obj = new JSONObject(result);
-        for (int i = 0; i < stacja.length; i++) {
-            JSONArray actual = obj.getJSONObject("dane").getJSONArray("actual");
-            JSONObject stacjaa = actual.getJSONObject(i);
-            if (i == Stacja.getIndex()) {
-                Stacja.setName(stacjaa.getString("station_name"));
-                JSONArray details = stacjaa.getJSONArray("details");
-                for (int j = 0; j < details.length(); ++j) {
-                    if(details.optJSONObject(j).optString("o_wskaznik").equals("pm10"))
-                        Stacja.setPm10((details.optJSONObject(j).getInt("o_value")));
-                    if(details.optJSONObject(j).optString("o_wskaznik").equals("pm2.5"))
-                        Stacja.setPm25((details.optJSONObject(j).getInt("o_value")));
-                    if(details.optJSONObject(j).optString("o_wskaznik").equals("no2"))
-                        Stacja.setNo2((details.optJSONObject(j).getInt("o_value")));
-                    if(details.optJSONObject(j).optString("o_wskaznik").equals("so2"))
-                        Stacja.setO3((details.optJSONObject(j).getInt("o_value")));
-                    if(details.optJSONObject(j).optString("o_wskaznik").equals("o3"))
-                        Stacja.setC6h6((details.optJSONObject(j).getInt("o_value")));
-                }
+    public void Update() throws ExecutionException, InterruptedException, JSONException {
+        String result = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/station/sensors/" + String.valueOf(getStationId())).get();
+        JSONArray jsonarray = new JSONArray(result);
+        for (int i = 0; i < jsonarray.length(); ++i) {
+            JSONObject stationIterator = jsonarray.getJSONObject(i);
+            if(stationIterator.getJSONObject("param").optString("paramCode").equals("PM10")) {
+                String test = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/data/getData/" + stationIterator.get("id")).get();
+                JSONObject bla = new JSONObject(test);
+                JSONArray xxx = bla.getJSONArray("values");
+                setPm10((xxx.getJSONObject(2).optDouble("value")));
             }
+            if(stationIterator.getJSONObject("param").optString("paramCode").equals("PM2.5")) {}
+            if(stationIterator.getJSONObject("param").optString("paramCode").equals("NO2")) {}
+            if(stationIterator.getJSONObject("param").optString("paramCode").equals("SO2")) {}
+            if(stationIterator.getJSONObject("param").optString("paramCode").equals("O3")){}
         }
         roundDistanceTo();
     }
