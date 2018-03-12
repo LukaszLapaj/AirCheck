@@ -62,11 +62,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 try {
                     t1.setText("Update...");
                     downloadParsePrintTable(location.getLatitude(), location.getLongitude());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -133,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationManager.requestLocationUpdates("gps", time, distance, listener);
     }
 
-    void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException {
+    void downloadParsePrintTable(Double Latitude, Double Longitude) throws JSONException, ExecutionException, InterruptedException, Exception {
 //        Latitude =  50.05767;
 //        Longitude = 19.926189;
         StationAirly Airly = new StationAirly().FindStation(Latitude, Longitude);
@@ -163,11 +159,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.d("Response: ", "> Getting data from last location" );
             try {
                 downloadParsePrintTable(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

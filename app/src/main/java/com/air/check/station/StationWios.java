@@ -79,25 +79,49 @@ public class StationWios extends Station{
         return this;
     }
 
-    public void Update() throws ExecutionException, InterruptedException, JSONException {
+    public void Update() throws ExecutionException, InterruptedException, JSONException{
         String result = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/station/sensors/" + String.valueOf(getStationId())).get();
         JSONArray jsonarray = new JSONArray(result);
         for (int i = 0; i < jsonarray.length(); ++i) {
             JSONObject stationIterator = jsonarray.getJSONObject(i);
-            if(stationIterator.getJSONObject("param").optString("paramCode").equals("PM10")) {
-                String test = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/data/getData/" + stationIterator.get("id")).get();
-                JSONObject bla = new JSONObject(test);
-                JSONArray xxx = bla.getJSONArray("values");
-                //setPm10(((xxx.getJSONObject(2).optDouble("value"))));
-                setPm10(hasDoubleValue(xxx.getJSONObject(2), "value"));
+            String test = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/data/getData/" + stationIterator.get("id")).get();
+            JSONObject bla = new JSONObject(test);
+            JSONArray values = bla.getJSONArray("values");
+            String key = bla.optString("key");
+            try {
+                extractValue(values, key);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            if(stationIterator.getJSONObject("param").optString("paramCode").equals("PM2.5")) {}
-            if(stationIterator.getJSONObject("param").optString("paramCode").equals("NO2")) {}
-            if(stationIterator.getJSONObject("param").optString("paramCode").equals("SO2")) {}
-            if(stationIterator.getJSONObject("param").optString("paramCode").equals("O3")){}
         }
         roundPm();
         roundDistanceTo();
+    }
+
+    private double parseValue(JSONArray param) throws JSONException{
+        for(int i = 0; i < param.length(); ++i){
+            if(param.optJSONObject(i) != null){
+                return (hasDoubleValue(param.optJSONObject(i), "value"));
+            }
+        }
+        return 0.0;
+    }
+
+    private void extractValue(JSONArray param, String value) throws Exception{
+        if(value.equals("PM10"))
+            setPm10(parseValue(param));
+        if(value.equals("PM25"))
+            setPm25(parseValue(param));
+        if(value.equals("NO2"))
+            setNo2(parseValue(param));
+        if(value.equals("SO2"))
+            setSo2(parseValue(param));
+        if(value.equals("O3"))
+            setO3(parseValue(param));
+        if(value.equals("C6H6"))
+            setC6h6(parseValue(param));
+        if(value.equals("Co"))
+            setCo(parseValue(param));
     }
 
     private void roundPm(){
