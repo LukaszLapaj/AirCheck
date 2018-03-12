@@ -11,3 +11,4 @@
 .idea/misc.xml
 app/release/output.json
 app/release/app-release.apk
+*.log

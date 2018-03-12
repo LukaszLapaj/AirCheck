@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.air.check.station.StationWios;
 import com.air.check.station.StationAirly;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -43,13 +45,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        MultiDex.install(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        t1 = findViewById(R.id.textView1);
-        t2 = findViewById(R.id.textView2);
-        t3 = findViewById(R.id.textView3);
-        b = findViewById(R.id.button);
+        t1 = (TextView) findViewById(R.id.textView1);
+        t2 = (TextView) findViewById(R.id.textView2);
+        t3 = (TextView) findViewById(R.id.textView3);
+        b = (Button) findViewById(R.id.button);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -90,8 +93,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
-                != PackageManager.PERMISSION_GRANTED)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                != PackageManager.PERMISSION_GRANTED)) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET}, 10);
             return;
         }
@@ -106,12 +108,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     void buttonListener(){
         runServices(60*60,100);
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("Response: ", "> Button Pressed" );
-                runServices(60,10);
-            }
+        b.setOnClickListener((View view) -> {
+            Log.d("Response: ", "> Button Pressed" );
+            runServices(60,10);
         });
     }
 
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // Time convert from milliseconds to seconds
         time *= 1000;
         Log.d("Response: ", "> Last Localisation Check" );
-        int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+        int statusCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
         if (statusCode == ConnectionResult.SUCCESS) {
             buildGoogleApiClient();
             if (mGoogleApiClient != null)
@@ -159,8 +158,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(Bundle arg0){
-        // requestLocationUpdates
-        //noinspection ResourceType
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             Log.d("Response: ", "> Getting data from last location" );
@@ -173,7 +170,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            // printResult(String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()));
         }
     }
 

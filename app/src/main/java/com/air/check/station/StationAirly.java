@@ -39,25 +39,27 @@ public class StationAirly extends Station{
     public StationAirly FindStation(Double userLatitude, Double userLongitude) throws ExecutionException, InterruptedException, JSONException {
         String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=-89.999999999999&southwestLong=-180&northeastLat=89.999999999999&northeastLong=180&apikey=" + ApiKey.get()).get();
         JSONArray stationsTable = new JSONArray(result);
-        for (int i = 0; i < stationsTable.length(); ++i) {
-            JSONObject stationsTableJSONObject = stationsTable.getJSONObject(i);
-            JSONObject location = stationsTableJSONObject.getJSONObject("location");
-            Double testLatitude = location.getDouble("latitude");
-            Double testLongitude = location.getDouble("longitude");
-            int sensorId = stationsTableJSONObject.getInt("id");
-            if(Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude) <= getDistanceTo()){
-                setStationId(sensorId);
-                setLatitude(testLatitude);
-                setLongitude(testLongitude);
-                JSONObject address = stationsTableJSONObject.getJSONObject("address");
-                setCountry(address.optString("country"));
-                setLocality(address.optString("locality"));
-                setRoute(address.optString("route"));
-                setStreetnumber(address.optString("streetNumber"));
-                setDistanceTo(Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude));
+        if (result != null) {
+            for (int i = 0; i < stationsTable.length(); ++i) {
+                JSONObject stationsTableJSONObject = stationsTable.getJSONObject(i);
+                JSONObject location = stationsTableJSONObject.getJSONObject("location");
+                Double testLatitude = location.getDouble("latitude");
+                Double testLongitude = location.getDouble("longitude");
+                int sensorId = stationsTableJSONObject.getInt("id");
+                if (Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude) <= getDistanceTo()) {
+                    setStationId(sensorId);
+                    setLatitude(testLatitude);
+                    setLongitude(testLongitude);
+                    JSONObject address = stationsTableJSONObject.getJSONObject("address");
+                    setCountry(address.optString("country"));
+                    setLocality(address.optString("locality"));
+                    setRoute(address.optString("route"));
+                    setStreetnumber(address.optString("streetNumber"));
+                    setDistanceTo(Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude));
+                }
             }
+            Update();
         }
-        Update();
         return this;
     }
 
@@ -66,7 +68,7 @@ public class StationAirly extends Station{
         JSONObject obj = new JSONObject(result).getJSONObject("currentMeasurements");
 
         // Set info
-        Log.d("Response: ", "> Parsing data" );
+        //Log.d("Response: ", "> Parsing data" );
         setPm1(hasDoubleValue(obj, "pm1"));
         setPm10(hasDoubleValue(obj, "pm10"));
         setPm25(hasDoubleValue(obj, "pm25"));
@@ -76,7 +78,7 @@ public class StationAirly extends Station{
         setAirQualityIndex(hasDoubleValue(obj, "airQualityIndex"));
 
         // Rounding
-        Log.d("Response: ", "> Rounding" );
+        //Log.d("Response: ", "> Rounding" );
         roundPm();
         roundPressure();
         roundHumidity();

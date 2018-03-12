@@ -27,8 +27,6 @@ public class StationWios extends Station{
     private Double o3;
     private String name;
 
-
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -207,4 +205,3 @@ public class StationWios extends Station{
         this.name = name;
     }
 }
-

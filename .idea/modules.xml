@@ -3,9 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AirCheck.iml" filepath="$PROJECT_DIR$/AirCheck.iml" />
-      <module fileurl="file://D:\GitHub\AirCheck\AirCheck.iml" filepath="D:\GitHub\AirCheck\AirCheck.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://D:\GitHub\AirCheck\app\app.iml" filepath="D:\GitHub\AirCheck\app\app.iml" />
     </modules>
   </component>
 </project>
