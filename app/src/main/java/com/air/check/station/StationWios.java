@@ -1,5 +1,7 @@
 package com.air.check.station;
 
+import android.util.Log;
+
 import com.air.check.utils.Distance;
 import com.air.check.utils.JsonTask;
 
@@ -100,8 +102,9 @@ public class StationWios extends Station{
 
     private double parseValue(JSONArray param) throws JSONException{
         for(int i = 0; i < param.length(); ++i){
-            if(param.optJSONObject(i) != null){
-                return (hasDoubleValue(param.optJSONObject(i), "value"));
+            if(!param.optJSONObject(i).optString("value").equals("null")){
+                //Log.d("Response: ", "> " + param.optJSONObject(i).optDouble("value"));
+                return param.optJSONObject(i).optDouble("value");
             }
         }
         return 0.0;
