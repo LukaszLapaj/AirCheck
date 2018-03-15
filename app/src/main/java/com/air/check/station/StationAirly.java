@@ -105,6 +105,7 @@ public class StationAirly extends Station{
     void roundTemperature(){
         temperature = Math.round(temperature * 10.0) / 10.0;
     }
+
     void roundDistanceTo(){
         distanceTo = (double)Math.round(distanceTo) * 100 / 100;
     }

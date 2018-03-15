@@ -7,13 +7,13 @@ android {
         applicationId "com.air.check"
         minSdkVersion 23
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -fexceptions"
+                cppFlags "-std=c++1z -fexceptions"
             }
         }
     }
@@ -21,10 +21,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            //signingConfig signingConfigs.config
         }
         debug {
-            signingConfig signingConfigs.config
+            //signingConfig signingConfigs.config
         }
     }
     externalNativeBuild {

@@ -97,6 +97,11 @@ public class StationWios extends Station{
             }
         }
         roundPm();
+        roundNo2();
+        roundSo2();
+        roundO3();
+        roundC6H6();
+        roundCo();
         roundDistanceTo();
     }
 
@@ -132,8 +137,28 @@ public class StationWios extends Station{
         setPm25(Math.round(getPm25() * 100.0) / 100.0);
     }
 
+    private void roundNo2(){
+        setNo2(Math.round(getNo2() * 100.0) / 100.0);
+    }
+
+    private void roundSo2(){
+        setSo2(Math.round(getSo2() * 100.0) / 100.0);
+    }
+
+    private void roundO3(){
+        setO3(Math.round(getO3() * 100.0) / 100.0);
+    }
+
+    private void roundC6H6(){
+        setC6h6(Math.round(getC6h6() * 100.0) / 100.0);
+    }
+
+    private void roundCo(){
+        setCo(Math.round(getCo() * 100.0) / 100.0);
+    }
+
     void roundDistanceTo(){
-        setDistanceTo((double)Math.round(getDistanceTo()) * 100 / 100);
+        setDistanceTo(Math.round(getDistanceTo() * 100.0) / 100.0);
     }
 
     public int getCityId() {

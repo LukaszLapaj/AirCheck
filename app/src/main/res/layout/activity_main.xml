@@ -112,26 +112,6 @@
                     android:minWidth="300dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:background="@drawable/bg_card"
-                android:weightSum="1">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/text_size"
-                    android:textColor="@color/text_color"
-                    android:id="@+id/textView4"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_margin="10dp"
-                    android:minHeight="30dp"
-                    android:minWidth="300dp" />
-            </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
