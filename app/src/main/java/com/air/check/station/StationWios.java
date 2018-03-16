@@ -1,5 +1,6 @@
 package com.air.check.station;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.air.check.utils.Distance;
@@ -60,7 +61,9 @@ public class StationWios extends Station{
         setName("");
     }
 
-    public StationWios FindStation(Double userLatitide, Double userLongtitude) throws ExecutionException, InterruptedException, JSONException {
+    public StationWios FindStation(Location userLocation) throws ExecutionException, InterruptedException, JSONException {
+        double userLatitide = userLocation.getLatitude();
+        double userLongtitude = userLocation.getLongitude();
         String result = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/station/findAll").get();
         JSONArray jsonarray = new JSONArray(result);
         for (int i = 0; i < jsonarray.length(); ++i) {

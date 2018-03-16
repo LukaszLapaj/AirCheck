@@ -1,5 +1,6 @@
 package com.air.check.station;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.air.check.airly.ApiKey;
@@ -36,7 +37,9 @@ public class StationAirly extends Station{
         distanceTo = Double.MAX_VALUE;
     }
 
-    public StationAirly FindStation(Double userLatitude, Double userLongitude) throws ExecutionException, InterruptedException, JSONException {
+    public StationAirly FindStation(Location userLocation) throws ExecutionException, InterruptedException, JSONException {
+        double userLatitude = userLocation.getLatitude();
+        double userLongitude = userLocation.getLongitude();
         String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=-89.999999999999&southwestLong=-180&northeastLat=89.999999999999&northeastLong=180&apikey=" + ApiKey.get()).get();
         JSONArray stationsTable = new JSONArray(result);
         if (result != null) {
