@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -14,23 +13,23 @@ import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.util.Log;
 
-import com.air.check.station.StationWios;
 import com.air.check.station.StationAirly;
-
+import com.air.check.station.StationWios;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONException;
 
-import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
@@ -137,8 +136,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         StationWios Wios = new StationWios().FindStation(Latitude, Longitude);
         t2.setText(Wios.toString());
         t3.setText(Airly.distanceTo(Wios));
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        t3.append("Ostatnia aktualizacja: " + timestamp);
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        Date currentTime = new Date();
+        t3.append("Ostatnia aktualizacja: " + dateFormat.format(currentTime));
     }
 
     protected synchronized void buildGoogleApiClient() {
