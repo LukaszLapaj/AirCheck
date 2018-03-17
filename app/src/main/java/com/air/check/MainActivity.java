@@ -32,7 +32,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -112,10 +111,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     void buttonListener(){
-        runServices(60*60,100);
+        runServices(25,1);
         b.setOnClickListener((View view) -> {
             Log.d("Response: ", "> Button Pressed" );
-            runServices(60,10);
+            runServices(25,1);
         });
     }
 
@@ -139,9 +138,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            final StationAirly Airlyy = Airly;
-            mHandler.post(() -> t1.setText(Airlyy.toString()));
-            //t1.setText(Airly.toString());
             StationWios Wios = new StationWios();
             try {
                 Wios = new StationWios().FindStation(userLocation);
@@ -152,10 +148,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            final StationAirly Airlyy = Airly;
             final StationWios Wioss = Wios;
-            mHandler2.post(() -> {
-                t2.setText(Wioss.toString());
-            });
+            mHandler.post(() -> t1.setText(Airlyy.toString()));
+            mHandler2.post(() -> t2.setText(Wioss.toString()));
             mHandler3.post(() -> {
                 t3.setText(Airlyy.distanceTo(Wioss));
                 DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -188,15 +184,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 //        Latitude =  50.05767;
 //        Longitude = 19.926189;
         updateT.execute(new updaterThread(location));
-        //updateT2.execute(new updaterThread2(location));
-        //StationAirly Airly = new StationAirly().FindStation(location);
-        //t1.setText(Airly.toString());
-        //StationWios Wios = new StationWios().FindStation(location);
-        //t2.setText(Wios.toString());
-        /*t3.setText(Airly.distanceTo(Wios));
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        Date currentTime = new Date();
-        t3.setText("Ostatnia aktualizacja: " + dateFormat.format(currentTime));*/
     }
 
     protected synchronized void buildGoogleApiClient() {
