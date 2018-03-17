@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,6 +32,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private Button b;
@@ -42,8 +46,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
 
+    public Handler mHandler;
+    public Handler mHandler2;
+    public Handler mHandler3;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        mHandler = new Handler();
+        mHandler2 = new Handler();
+        mHandler3 = new Handler();
         MultiDex.install(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -59,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onLocationChanged(Location location) {
                 try {
-                    t1.setText("Update...");
                     downloadParsePrintTable(location);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -109,6 +119,52 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         });
     }
 
+    static ExecutorService updateT = Executors.newSingleThreadExecutor();
+    public class updaterThread implements Runnable {
+        private Location userLocation;
+
+        public updaterThread(Location userLocation) {
+            this.userLocation = userLocation;
+        }
+
+        @Override
+        public void run() {
+            StationAirly Airly = new StationAirly();
+            try {
+                Airly = new StationAirly().FindStation(userLocation);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            final StationAirly Airlyy = Airly;
+            mHandler.post(() -> t1.setText(Airlyy.toString()));
+            //t1.setText(Airly.toString());
+            StationWios Wios = new StationWios();
+            try {
+                Wios = new StationWios().FindStation(userLocation);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            final StationWios Wioss = Wios;
+            mHandler2.post(() -> {
+                t2.setText(Wioss.toString());
+            });
+            mHandler3.post(() -> {
+                t3.setText(Airlyy.distanceTo(Wioss));
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                Date currentTime = new Date();
+                t3.append("Ostatnia aktualizacja: " + dateFormat.format(currentTime));
+            });
+        }
+    }
+
     void runServices(long time, float distance){
         // Time convert from milliseconds to seconds
         time *= 1000;
@@ -131,14 +187,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     void downloadParsePrintTable(Location location) throws JSONException, ExecutionException, InterruptedException, Exception {
 //        Latitude =  50.05767;
 //        Longitude = 19.926189;
-        StationAirly Airly = new StationAirly().FindStation(location);
-        t1.setText(Airly.toString());
-        StationWios Wios = new StationWios().FindStation(location);
-        t2.setText(Wios.toString());
-        t3.setText(Airly.distanceTo(Wios));
+        updateT.execute(new updaterThread(location));
+        //updateT2.execute(new updaterThread2(location));
+        //StationAirly Airly = new StationAirly().FindStation(location);
+        //t1.setText(Airly.toString());
+        //StationWios Wios = new StationWios().FindStation(location);
+        //t2.setText(Wios.toString());
+        /*t3.setText(Airly.distanceTo(Wios));
         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         Date currentTime = new Date();
-        t3.append("Ostatnia aktualizacja: " + dateFormat.format(currentTime));
+        t3.setText("Ostatnia aktualizacja: " + dateFormat.format(currentTime));*/
     }
 
     protected synchronized void buildGoogleApiClient() {
