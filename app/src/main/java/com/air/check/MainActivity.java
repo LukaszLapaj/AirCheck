@@ -1,13 +1,16 @@
 package com.air.check;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioAttributes;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -49,11 +52,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public Handler mHandler2;
     public Handler mHandler3;
 
+    private Vibrator mVibrator;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mHandler = new Handler();
         mHandler2 = new Handler();
         mHandler3 = new Handler();
+        mVibrator = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         MultiDex.install(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -114,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         runServices(25,1);
         b.setOnClickListener((View view) -> {
             Log.d("Response: ", "> Button Pressed" );
+            mVibrator.vibrate(60);
             runServices(25,1);
         });
     }
@@ -121,39 +128,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     static ExecutorService updateT = Executors.newSingleThreadExecutor();
     public class updaterThread implements Runnable {
         private Location userLocation;
-
         public updaterThread(Location userLocation) {
             this.userLocation = userLocation;
         }
-
         @Override
         public void run() {
             StationAirly Airly = new StationAirly();
-            try {
-                Airly = new StationAirly().FindStation(userLocation);
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
             StationWios Wios = new StationWios();
             try {
+                Airly = new StationAirly().FindStation(userLocation);
                 Wios = new StationWios().FindStation(userLocation);
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            final StationAirly Airlyy = Airly;
-            final StationWios Wioss = Wios;
-            mHandler.post(() -> t1.setText(Airlyy.toString()));
-            mHandler2.post(() -> t2.setText(Wioss.toString()));
+            StationAirly finalAirly = Airly;
+            StationWios finalWios = Wios;
+            mHandler.post(() -> t1.setText(finalAirly.toString()));
+            mHandler2.post(() -> t2.setText(finalWios.toString()));
             mHandler3.post(() -> {
-                t3.setText(Airlyy.distanceTo(Wioss));
+                t3.setText(finalAirly.distanceTo(finalWios));
                 DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                 Date currentTime = new Date();
                 t3.append("Ostatnia aktualizacja: " + dateFormat.format(currentTime));
