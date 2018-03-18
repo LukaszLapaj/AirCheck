@@ -77,7 +77,10 @@ public class StationWios extends Station{
                 setCityId(jsonobject.getJSONObject("city").getInt("id"));
                 setLatitude(stationLatitude);
                 setLongitude(stationLongitude);
-                setDistanceTo(Distance.calculate(userLatitide, getLatitude(), userLongtitude, getLongitude()));
+                Location sLocation = new Location("");
+                sLocation.setLatitude(stationLatitude);
+                sLocation.setLongitude(stationLongitude);
+                setDistanceTo((double)userLocation.distanceTo(sLocation));
             }
         }
         Update();

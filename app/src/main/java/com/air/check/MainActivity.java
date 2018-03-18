@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.AudioAttributes;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -125,19 +124,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         });
     }
 
-    static ExecutorService updateT = Executors.newSingleThreadExecutor();
+    static ExecutorService updaterService = Executors.newSingleThreadExecutor();
     public class updaterThread implements Runnable {
         private Location userLocation;
-        public updaterThread(Location userLocation) {
+        private StationAirly Airly = new StationAirly();
+        private StationWios Wios = new StationWios();
+        private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        updaterThread(Location userLocation) {
             this.userLocation = userLocation;
         }
         @Override
         public void run() {
-            StationAirly Airly = new StationAirly();
-            StationWios Wios = new StationWios();
             try {
-                Airly = new StationAirly().FindStation(userLocation);
-                Wios = new StationWios().FindStation(userLocation);
+                this.Airly = new StationAirly().FindStation(userLocation);
+                this.Wios = new StationWios().FindStation(userLocation);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -147,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             mHandler2.post(() -> t2.setText(finalWios.toString()));
             mHandler3.post(() -> {
                 t3.setText(finalAirly.distanceTo(finalWios));
-                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                 Date currentTime = new Date();
                 t3.append("Ostatnia aktualizacja: " + dateFormat.format(currentTime));
             });
@@ -176,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     void downloadParsePrintTable(Location location) throws JSONException, ExecutionException, InterruptedException, Exception {
 //        Latitude =  50.05767;
 //        Longitude = 19.926189;
-        updateT.execute(new updaterThread(location));
+        updaterService.execute(new updaterThread(location));
     }
 
     protected synchronized void buildGoogleApiClient() {
