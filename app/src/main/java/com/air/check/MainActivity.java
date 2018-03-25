@@ -13,7 +13,7 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.multidex.MultiDex;
+//import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mHandler2 = new Handler();
         mHandler3 = new Handler();
         mVibrator = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-        MultiDex.install(this);
+        //MultiDex.install(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
