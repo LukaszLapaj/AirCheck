@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
  * Created by Lukasz on 16.02.2017.
  */
 
-public class StationAirly extends Station{
+public class StationAirly extends Station {
     private static int stationId;
     private static Double distanceTo;
     private static Double pm1;
@@ -91,34 +91,34 @@ public class StationAirly extends Station{
         roundDistanceTo();
     }
 
-    private void roundPm(){
+    private void roundPm() {
         pm1 = Math.round(pm1 * 100.0) / 100.0;
         pm10 = Math.round(pm10 * 100.0) / 100.0;
         pm25 = Math.round(pm25 * 100.0) / 100.0;
     }
 
-    void roundPressure(){
+    void roundPressure() {
         pressure = Math.round(pressure / 100.0) / 1.0;
     }
 
-    void roundHumidity(){
+    void roundHumidity() {
         humidity = Math.round(humidity * 100.0) / 100.0;
     }
 
-    void roundTemperature(){
+    void roundTemperature() {
         temperature = Math.round(temperature * 10.0) / 10.0;
     }
 
-    void roundDistanceTo(){
-        distanceTo = (double)Math.round(distanceTo) * 100 / 100;
+    void roundDistanceTo() {
+        distanceTo = (double) Math.round(distanceTo) * 100 / 100;
     }
 
-    void roundAirQualityIndex(){
+    void roundAirQualityIndex() {
         airQualityIndex = Math.round(airQualityIndex * 100.0) / 100.0;
     }
 
     //@SuppressLint("DefaultLocale")
-    public String toString(){
+    public String toString() {
         StringBuilder builder = new StringBuilder("");
         if (getLocality() != "") builder.append("Lokalizacja: " + getLocality());
         if (!getRoute().equals("")) builder.append("\n" + "Adres: " + getRoute() + " " + getStreetnumber());

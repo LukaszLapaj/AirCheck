@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
  * Created by Lukasz on 16.02.2017.
  */
 
-public class StationWios extends Station{
+public class StationWios extends Station {
     private int cityId;
     private int stationId;
     private int index;
@@ -46,7 +46,7 @@ public class StationWios extends Station{
         return builder.toString();
     }
 
-    public StationWios(){
+    public StationWios() {
         setPm10(0.0);
         setPm25(0.0);
         setNo2(0.0);
@@ -71,7 +71,7 @@ public class StationWios extends Station{
             Double stationLatitude = jsonobject.getDouble("gegrLat");
             Double stationLongitude = jsonobject.getDouble("gegrLon");
             int stationId = jsonobject.getInt("id");
-            if(Distance.calculate(userLatitide, stationLatitude, userLongtitude, stationLongitude) <= getDistanceTo()){
+            if (Distance.calculate(userLatitide, stationLatitude, userLongtitude, stationLongitude) <= getDistanceTo()) {
                 setStationId(stationId);
                 setName(jsonobject.getString("stationName"));
                 setCityId(jsonobject.getJSONObject("city").getInt("id"));
@@ -80,14 +80,14 @@ public class StationWios extends Station{
                 Location sLocation = new Location("");
                 sLocation.setLatitude(stationLatitude);
                 sLocation.setLongitude(stationLongitude);
-                setDistanceTo((double)userLocation.distanceTo(sLocation));
+                setDistanceTo((double) userLocation.distanceTo(sLocation));
             }
         }
         Update();
         return this;
     }
 
-    public void Update() throws ExecutionException, InterruptedException, JSONException{
+    public void Update() throws ExecutionException, InterruptedException, JSONException {
         String result = new JsonTask().execute("http://api.gios.gov.pl/pjp-api/rest/station/sensors/" + String.valueOf(getStationId())).get();
         JSONArray jsonarray = new JSONArray(result);
         for (int i = 0; i < jsonarray.length(); ++i) {
@@ -111,9 +111,9 @@ public class StationWios extends Station{
         roundDistanceTo();
     }
 
-    private double parseValue(JSONArray param) throws JSONException{
-        for(int i = 0; i < param.length(); ++i){
-            if(!param.optJSONObject(i).optString("value").equals("null")){
+    private double parseValue(JSONArray param) throws JSONException {
+        for (int i = 0; i < param.length(); ++i) {
+            if (!param.optJSONObject(i).optString("value").equals("null")) {
                 //Log.d("Response: ", "> " + param.optJSONObject(i).optDouble("value"));
                 return param.optJSONObject(i).optDouble("value");
             }
@@ -121,49 +121,49 @@ public class StationWios extends Station{
         return 0.0;
     }
 
-    private void extractValue(JSONArray param, String value) throws Exception{
-        if(value.equals("PM10"))
+    private void extractValue(JSONArray param, String value) throws Exception {
+        if (value.equals("PM10"))
             setPm10(parseValue(param));
-        if(value.equals("PM25"))
+        if (value.equals("PM25"))
             setPm25(parseValue(param));
-        if(value.equals("NO2"))
+        if (value.equals("NO2"))
             setNo2(parseValue(param));
-        if(value.equals("SO2"))
+        if (value.equals("SO2"))
             setSo2(parseValue(param));
-        if(value.equals("O3"))
+        if (value.equals("O3"))
             setO3(parseValue(param));
-        if(value.equals("C6H6"))
+        if (value.equals("C6H6"))
             setC6h6(parseValue(param));
-        if(value.equals("Co"))
+        if (value.equals("Co"))
             setCo(parseValue(param));
     }
 
-    private void roundPm(){
+    private void roundPm() {
         setPm10(Math.round(getPm10() * 100.0) / 100.0);
         setPm25(Math.round(getPm25() * 100.0) / 100.0);
     }
 
-    private void roundNo2(){
+    private void roundNo2() {
         setNo2(Math.round(getNo2() * 100.0) / 100.0);
     }
 
-    private void roundSo2(){
+    private void roundSo2() {
         setSo2(Math.round(getSo2() * 100.0) / 100.0);
     }
 
-    private void roundO3(){
+    private void roundO3() {
         setO3(Math.round(getO3() * 100.0) / 100.0);
     }
 
-    private void roundC6H6(){
+    private void roundC6H6() {
         setC6h6(Math.round(getC6h6() * 100.0) / 100.0);
     }
 
-    private void roundCo(){
+    private void roundCo() {
         setCo(Math.round(getCo() * 100.0) / 100.0);
     }
 
-    void roundDistanceTo(){
+    void roundDistanceTo() {
         setDistanceTo(Math.round(getDistanceTo() * 100.0) / 100.0);
     }
 

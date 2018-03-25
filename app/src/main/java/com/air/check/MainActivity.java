@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private Button b;
     private TextView t1, t2, t3;
 
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         checkPermission();
     }
 
-    void checkPermission(){
+    void checkPermission() {
         // Permission check
         if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
                 != PackageManager.PERMISSION_GRANTED)) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET}, 10);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}, 10);
             return;
         }
         buttonListener();
@@ -111,28 +111,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == 10)
+        if (requestCode == 10)
             checkPermission();
     }
 
-    void buttonListener(){
-        runServices(25,1);
+    void buttonListener() {
+        runServices(25, 1);
         b.setOnClickListener((View view) -> {
-            Log.d("Response: ", "> Button Pressed" );
+            Log.d("Response: ", "> Button Pressed");
             mVibrator.vibrate(60);
-            runServices(25,1);
+            runServices(25, 1);
         });
     }
 
     static ExecutorService updaterService = Executors.newSingleThreadExecutor();
+
     public class updaterThread implements Runnable {
         private Location userLocation;
         private StationAirly Airly = new StationAirly();
         private StationWios Wios = new StationWios();
         private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
         updaterThread(Location userLocation) {
             this.userLocation = userLocation;
         }
+
         @Override
         public void run() {
             try {
@@ -153,21 +156,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    void runServices(long time, float distance){
+    void runServices(long time, float distance) {
         // Time convert from milliseconds to seconds
         time *= 1000;
-        Log.d("Response: ", "> Last Localisation Check" );
+        Log.d("Response: ", "> Last Localisation Check");
         int statusCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
         if (statusCode == ConnectionResult.SUCCESS) {
             buildGoogleApiClient();
             if (mGoogleApiClient != null)
                 mGoogleApiClient.connect();
-        }else {
+        } else {
             Log.d("Response: ", "> No Google Play Services!");
         }
         if (statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)
-            Log.d("Response: ", "> Google Play Services outdated!" );
-        Log.d("Response: ", "> GPS Check" );
+            Log.d("Response: ", "> Google Play Services outdated!");
+        Log.d("Response: ", "> GPS Check");
         //noinspection ResourceType
         locationManager.requestLocationUpdates("gps", time, distance, listener);
     }
@@ -187,13 +190,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult arg0) {}
+    public void onConnectionFailed(ConnectionResult arg0) {
+    }
 
     @Override
-    public void onConnected(Bundle arg0){
+    public void onConnected(Bundle arg0) {
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            Log.d("Response: ", "> Getting data from last location" );
+            Log.d("Response: ", "> Getting data from last location");
             try {
                 downloadParsePrintTable(mLastLocation);
             } catch (Exception e) {

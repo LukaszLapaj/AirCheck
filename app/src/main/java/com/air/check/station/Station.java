@@ -34,7 +34,7 @@ public class Station {
     }
 
     public Double hasDoubleValue(JSONObject obj, String key) throws JSONException {
-        if(obj.has(key))
+        if (obj.has(key))
             return obj.optDouble(key);
         else
             return 0.0;

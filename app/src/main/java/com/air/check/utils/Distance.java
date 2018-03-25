@@ -6,7 +6,7 @@ import android.location.Location;
  * Created by Lukasz on 16.02.2017.
  */
 
-public class Distance extends Location{
+public class Distance extends Location {
     public Distance(String provider) {
         super(provider);
     }
@@ -22,6 +22,6 @@ public class Distance extends Location{
         Location location2 = new Location("");
         location2.setLatitude(lat2);
         location2.setLongitude(lon2);
-        return (double)location1.distanceTo(location2);
+        return (double) location1.distanceTo(location2);
     }
 }
