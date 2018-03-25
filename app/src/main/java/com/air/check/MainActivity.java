@@ -28,12 +28,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-import org.json.JSONException;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,11 +38,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Button b;
     private TextView t1, t2, t3;
 
-    private LocationManager locationManager;
+    private LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     private LocationListener listener;
 
-    GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
+    public GoogleApiClient mGoogleApiClient;
+    public Location mLastLocation;
 
     public Handler mHandler;
     public Handler mHandler2;
@@ -68,26 +65,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         t3 = (TextView) findViewById(R.id.textView3);
         b = (Button) findViewById(R.id.button);
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                try {
-                    downloadParsePrintTable(location);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    runUpdaterService(location);
             }
 
             @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {}
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
 
             @Override
-            public void onProviderEnabled(String s) {}
+            public void onProviderEnabled(String provider) {}
 
             @Override
-            public void onProviderDisabled(String s) {
+            public void onProviderDisabled(String provider) {
                 Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(i);
             }
@@ -156,15 +147,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    void runServices(long time, float distance) {
-        // Time convert from milliseconds to seconds
-        time *= 1000;
+    void runServices(long timeInMilliseconds, float distance) {
+        long timeInSeconds = timeInMilliseconds * 1000;
         Log.d("Response: ", "> Last Localisation Check");
         int statusCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
         if (statusCode == ConnectionResult.SUCCESS) {
             buildGoogleApiClient();
-            if (mGoogleApiClient != null)
+            if (mGoogleApiClient != null) {
                 mGoogleApiClient.connect();
+            }
         } else {
             Log.d("Response: ", "> No Google Play Services!");
         }
@@ -172,12 +163,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.d("Response: ", "> Google Play Services outdated!");
         Log.d("Response: ", "> GPS Check");
         //noinspection ResourceType
-        locationManager.requestLocationUpdates("gps", time, distance, listener);
+        locationManager.requestLocationUpdates("gps", timeInSeconds, distance, listener);
     }
 
-    void downloadParsePrintTable(Location location) throws JSONException, ExecutionException, InterruptedException, Exception {
-//        Latitude =  50.05767;
-//        Longitude = 19.926189;
+    void runUpdaterService(Location location) {
+        location.setLatitude(50.05767);
+        location.setLongitude(19.926189);
         updaterService.execute(new updaterThread(location));
     }
 
@@ -198,11 +189,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             Log.d("Response: ", "> Getting data from last location");
-            try {
-                downloadParsePrintTable(mLastLocation);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                runUpdaterService(mLastLocation);
         }
     }
 
