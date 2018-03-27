@@ -35,10 +35,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private Button b;
-    private TextView t1, t2, t3;
+    public Button b;
+    public TextView t1, t2, t3;
 
-    private LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    private LocationManager locationManager;
     private LocationListener listener;
 
     public GoogleApiClient mGoogleApiClient;
@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         t2 = (TextView) findViewById(R.id.textView2);
         t3 = (TextView) findViewById(R.id.textView3);
         b = (Button) findViewById(R.id.button);
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         listener = new LocationListener() {
             @Override
