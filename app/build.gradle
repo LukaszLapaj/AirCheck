@@ -20,7 +20,7 @@ android {
         versionCode 15
         versionName "1.14"
         // testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
+        // multiDexEnabled true
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++1z -fexceptions"
@@ -35,7 +35,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled true
+            // minifyEnabled true
         }
     }
     externalNativeBuild {
@@ -51,6 +51,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.google.android.gms:play-services-location:12.0.0'
     implementation 'com.android.support:cardview-v7:27.1.0'
