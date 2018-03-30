@@ -1,6 +1,6 @@
-## AirCheck
+# AirCheck
 
-AirCheck is an simple android app which combines current air pollution information from WIOŚ and Airly with very simple interface, focusing on the most important things.
+### AirCheck is an simple android app which combines current air pollution information from WIOŚ and Airly with very simple interface, focusing on the most important things.
 
 ## Play Store
 https://play.google.com/store/apps/details?id=com.air.check
@@ -18,4 +18,4 @@ https://play.google.com/store/apps/details?id=com.air.check
 
 # Credits
 
-*WIOŚ and Airly for API
+* WIOŚ and Airly for API
