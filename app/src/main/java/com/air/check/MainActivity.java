@@ -169,8 +169,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     void runUpdaterService(Location location) {
-        location.setLatitude(50.05767);
-        location.setLongitude(19.926189);
+        // location.setLatitude(50.05767);
+        // location.setLongitude(19.926189);
         updaterService.execute(new updaterThread(location));
     }
 
