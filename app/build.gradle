@@ -11,14 +11,14 @@ android {
             storePassword props['storePassword']
         }
     }
-    compileSdkVersion 27
-    buildToolsVersion "28.0.0 rc1"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.air.check"
         minSdkVersion 21
-        targetSdkVersion 27
-        versionCode 15
-        versionName "1.14"
+        targetSdkVersion 29
+        versionCode 17
+        versionName "1.16"
         // testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // multiDexEnabled true
         externalNativeBuild {
