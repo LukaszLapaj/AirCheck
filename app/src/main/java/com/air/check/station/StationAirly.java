@@ -27,10 +27,14 @@ public class StationAirly extends Station {
     private static Double humidity;
     private static Double temperature;
     private static Double airQualityIndex;
+
     private static String country;
-    private static String locality;
-    private static String route;
-    private static String streetnumber;
+    private static String city;
+    private static String street;
+    private static String number;
+    private static String displayAddress1;
+    private static String displayAddress2;
+
     private static String measurementTime;
 
     public StationAirly() {
@@ -40,24 +44,33 @@ public class StationAirly extends Station {
     public StationAirly FindStation(Location userLocation) throws ExecutionException, InterruptedException, JSONException {
         double userLatitude = userLocation.getLatitude();
         double userLongitude = userLocation.getLongitude();
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1//sensors/current?southwestLat=-89.999999999999&southwestLong=-180&northeastLat=89.999999999999&northeastLong=180&apikey=" + ApiKey.get()).get();
+
+        String result = new JsonTask().execute("https://airapi.airly.eu/v2/installations/nearest?lat=" + userLatitude + "&lng=" + userLongitude + "&maxDistanceKM=50&maxResults=-1&apikey=" + ApiKey.get()).get();
         JSONArray stationsTable = new JSONArray(result);
+
         if (result != null) {
             for (int i = 0; i < stationsTable.length(); ++i) {
                 JSONObject stationsTableJSONObject = stationsTable.getJSONObject(i);
                 JSONObject location = stationsTableJSONObject.getJSONObject("location");
                 Double testLatitude = location.getDouble("latitude");
                 Double testLongitude = location.getDouble("longitude");
+                boolean isAirly = stationsTableJSONObject.getBoolean("airly");
                 int sensorId = stationsTableJSONObject.getInt("id");
-                if (Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude) <= getDistanceTo()) {
+
+                if (isAirly && Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude) <= getDistanceTo()) {
                     setStationId(sensorId);
+
                     setLatitude(testLatitude);
                     setLongitude(testLongitude);
+
                     JSONObject address = stationsTableJSONObject.getJSONObject("address");
                     setCountry(address.optString("country"));
-                    setLocality(address.optString("locality"));
-                    setRoute(address.optString("route"));
-                    setStreetnumber(address.optString("streetNumber"));
+                    setCity(address.optString("city"));
+                    setStreet(address.optString("street"));
+                    setNumber(address.optString("number"));
+                    setDisplayAddress1(address.optString("displayAddress1"));
+                    setDisplayAddress2(address.optString("displayAddress2"));
+
                     setDistanceTo(Distance.calculate(userLatitude, testLatitude, userLongitude, testLongitude));
                 }
             }
@@ -67,23 +80,29 @@ public class StationAirly extends Station {
     }
 
     void Update() throws ExecutionException, InterruptedException, JSONException {
-        String result = new JsonTask().execute("https://airapi.airly.eu/v1/sensor/measurements?sensorId=" + getStationId() + "&apikey=" + ApiKey.get()).get();
-        JSONObject obj = new JSONObject(result).getJSONObject("currentMeasurements");
+        String result = new JsonTask().execute("https://airapi.airly.eu/v2/measurements/installation" + "?apikey=" + ApiKey.get() + "&installationId=" + getStationId()).get();
+        JSONArray objj = new JSONObject(result).getJSONObject("current").getJSONArray("values");
 
-        // Set info
-        //Log.d("Response: ", "> Parsing data" );
-        setPm1(hasDoubleValue(obj, "pm1"));
-        setPm10(hasDoubleValue(obj, "pm10"));
-        setPm25(hasDoubleValue(obj, "pm25"));
-        setPressure(hasDoubleValue(obj, "pressure"));
-        setHumidity(hasDoubleValue(obj, "humidity"));
-        setTemperature(hasDoubleValue(obj, "temperature"));
-        setAirQualityIndex(hasDoubleValue(obj, "airQualityIndex"));
+        for (int i = 0; i < objj.length(); ++i) {
+            JSONObject measurement = objj.getJSONObject(i);
+            if (("PM1").equals(measurement.get("name")))
+                setPm1(hasDoubleValue(measurement, "PM1"));
+            if (("PM25").equals(measurement.get("name")))
+                setPm25(hasDoubleValue(measurement, "PM25"));
+            if (("PM10").equals(measurement.get("name")))
+                setPm10(hasDoubleValue(measurement, "PM10"));
+            if (("PRESSURE").equals(measurement.get("name")))
+                setPressure(hasDoubleValue(measurement, "PRESSURE"));
+            if (("HUMIDITY").equals(measurement.get("name")))
+                setHumidity(hasDoubleValue(measurement, "HUMIDITY"));
+            if (("TEMPERATURE").equals(measurement.get("name")))
+                setTemperature(hasDoubleValue(measurement, "TEMPERATURE"));
+        }
 
-        // Rounding
-        //Log.d("Response: ", "> Rounding" );
+        Double index = Double.valueOf(new JSONObject(result).getJSONObject("current").getJSONArray("indexes").getJSONObject(0).get("value").toString());
+        setAirQualityIndex(index);
+
         roundPm();
-        roundPressure();
         roundHumidity();
         roundTemperature();
         roundAirQualityIndex();
@@ -95,10 +114,6 @@ public class StationAirly extends Station {
         pm1 = Math.round(pm1 * 100.0) / 100.0;
         pm10 = Math.round(pm10 * 100.0) / 100.0;
         pm25 = Math.round(pm25 * 100.0) / 100.0;
-    }
-
-    void roundPressure() {
-        pressure = Math.round(pressure / 100.0) / 1.0;
     }
 
     void roundHumidity() {
@@ -119,9 +134,11 @@ public class StationAirly extends Station {
 
     //@SuppressLint("DefaultLocale")
     public String toString() {
-        StringBuilder builder = new StringBuilder("");
-        if (getLocality() != "") builder.append("Lokalizacja: " + getLocality());
-        if (!getRoute().equals("")) builder.append("\n" + "Adres: " + getRoute() + " " + getStreetnumber());
+        StringBuilder builder = new StringBuilder();
+
+        if (!getCity().equals("")) builder.append("Lokalizacja: " + getCity());
+        if (!getStreet().equals(""))
+            builder.append("\n" + "Adres: " + getStreet() + " " + getNumber());
         if (getAirQualityIndex() != 0) builder.append("\n" + "AQI: " + getAirQualityIndex());
         if (getPm1() != 0) builder.append("\n" + "PM1: " + getPm1() + "µg/m³");
         if (getPm25() != 0) builder.append("\n" + "PM2.5: " + getPm25() + "µg/m³");
@@ -130,6 +147,7 @@ public class StationAirly extends Station {
         if (getHumidity() != 0) builder.append("\n" + "Wilgotność: " + getHumidity() + "%");
         if (getTemperature() != 0) builder.append("\n" + "Temperatura: " + getTemperature() + "°C");
         if (getDistanceTo() != 0) builder.append("\n" + "Odleglość: " + getDistanceTo() + "m");
+
         return builder.toString();
     }
 
@@ -213,28 +231,44 @@ public class StationAirly extends Station {
         StationAirly.country = country;
     }
 
-    public static String getLocality() {
-        return locality;
+    public static String getDisplayAddress2() {
+        return displayAddress2;
     }
 
-    public static void setLocality(String locality) {
-        StationAirly.locality = locality;
+    public static void setDisplayAddress2(String displayAddress2) {
+        StationAirly.displayAddress2 = displayAddress2;
     }
 
-    public static String getRoute() {
-        return route;
+    public static String getDisplayAddress1() {
+        return displayAddress1;
     }
 
-    public static void setRoute(String route) {
-        StationAirly.route = route;
+    public static void setDisplayAddress1(String displayAddress1) {
+        StationAirly.displayAddress1 = displayAddress1;
     }
 
-    public static String getStreetnumber() {
-        return streetnumber;
+    public static String getNumber() {
+        return number;
     }
 
-    public static void setStreetnumber(String streetnumber) {
-        StationAirly.streetnumber = streetnumber;
+    public static void setNumber(String number) {
+        StationAirly.number = number;
+    }
+
+    public static String getStreet() {
+        return street;
+    }
+
+    public static void setStreet(String street) {
+        StationAirly.street = street;
+    }
+
+    public static String getCity() {
+        return city;
+    }
+
+    public static void setCity(String city) {
+        StationAirly.city = city;
     }
 
     public static String getMeasurementTime() {

@@ -34,9 +34,11 @@ public class Station {
     }
 
     public Double hasDoubleValue(JSONObject obj, String key) throws JSONException {
-        if (obj.has(key))
-            return obj.optDouble(key);
-        else
+        String name = obj.getString("name");
+        if (key.equals(name)) {
+            return Double.valueOf(obj.get("value").toString());
+        }else {
             return 0.0;
+        }
     }
 }

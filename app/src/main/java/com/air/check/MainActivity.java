@@ -54,8 +54,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mHandler = new Handler();
         mHandler2 = new Handler();
         mHandler3 = new Handler();
+
         mVibrator = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-        //MultiDex.install(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -69,14 +70,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                    runUpdaterService(location);
+                runUpdaterService(location);
             }
 
             @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
 
             @Override
-            public void onProviderEnabled(String provider) {}
+            public void onProviderEnabled(String provider) {
+            }
 
             @Override
             public void onProviderDisabled(String provider) {
@@ -84,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 startActivity(i);
             }
         };
+
         checkPermission();
     }
 
@@ -98,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}, 10);
             return;
         }
+
         buttonListener();
     }
 
@@ -152,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         long timeInSeconds = timeInMilliseconds * 1000;
         Log.d("Response: ", "> Last Localisation Check");
         int statusCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+
         if (statusCode == ConnectionResult.SUCCESS) {
             buildGoogleApiClient();
             if (mGoogleApiClient != null) {
@@ -160,9 +166,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         } else {
             Log.d("Response: ", "> No Google Play Services!");
         }
+
         if (statusCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)
             Log.d("Response: ", "> Google Play Services outdated!");
         Log.d("Response: ", "> GPS Check");
+
         //noinspection ResourceType
         locationManager.requestLocationUpdates("gps", timeInSeconds, distance, listener);
     }
@@ -172,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             location.setLatitude(50.05767);
             location.setLongitude(19.926189);
         }
+
         updaterService.execute(new updaterThread(location));
     }
 
@@ -192,10 +201,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             Log.d("Response: ", "> Getting data from last location");
-                runUpdaterService(mLastLocation);
+            runUpdaterService(mLastLocation);
         }
     }
 
     @Override
-    public void onConnectionSuspended(int arg0) {}
+    public void onConnectionSuspended(int arg0) {
+    }
 }
