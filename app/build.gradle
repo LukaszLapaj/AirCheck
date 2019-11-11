@@ -19,8 +19,6 @@ android {
         targetSdkVersion 29
         versionCode 17
         versionName "1.16"
-        // testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        // multiDexEnabled true
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++1z -fexceptions"
@@ -33,9 +31,6 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            // minifyEnabled true
         }
     }
     externalNativeBuild {
@@ -51,15 +46,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    //noinspection GradleCompatible
-    implementation 'com.android.support:appcompat-v7:27.1.0'
-    implementation 'com.google.android.gms:play-services-location:12.0.0'
-    implementation 'com.android.support:cardview-v7:28.0.0'
-    // implementation 'com.android.support:multidex:1.0.3'
-    // implementation 'com.google.code.gson:gson:2.8.2'
-    // implementation 'com.android.support:support-vector-drawable:27.1.0'
-    // compile 'com.android.support:support-compat:27.1.0'
-    // compile 'com.android.support:cardview-v7:25.1.1'
-    // testCompile 'junit:junit:4.12'
-    // compile 'com.android.support:design:27.1.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
 }
